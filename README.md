@@ -1,32 +1,29 @@
 # Leads — Non-Hotel Pitch Sites
 
-A modular repo for generating bespoke pitch websites for local businesses that don't have a web presence yet. Each business gets its own folder under `sites/`, built from a shared template and populated with real assets scraped from Google Maps.
+A modular repository for generating bespoke, high-quality pitch websites for local businesses without an existing web presence. Each business gets its own folder under `sites/`, scaffolded from a business-specific template, and is populated with real imagery scraped directly from Google Maps.
 
 ## Structure
 
 ```
 leads-non-hotel/
+├── .agents/
+│   └── AGENTS.md        ← Core rules and workflow for AI agents working in this repo
 ├── .gitignore
-├── package.json
-├── README.md
+├── package.json         ← Contains puppeteer dependency for scraping
 ├── scripts/
-│   ├── scrape_maps.js   ← download real photos from Google Maps
-│   └── new_site.js      ← scaffold a new site from template
-├── template/            ← blank starter (edit to update all future sites)
-│   ├── index.html
-│   ├── style.css
-│   └── script.js
+│   ├── scrape_maps.js   ← Scrapes full-res photos from Maps network buffers (macOS bot bypass)
+│   └── new_site.js      ← Scaffolds a new site based on a business template
+├── templates/           ← Base templates tailored by industry
+│   ├── diagnostic/
+│   ├── restaurant/
+│   └── coaching/
 └── sites/
-    └── mehta-mri/       ← one folder per lead
+    └── mehta-mri/       ← Deployed lead folder (e.g., sites/<slug>/)
         ├── index.html
         ├── style.css
         ├── script.js
         └── assets/
-            └── maps_photos/
-                ├── photo_1.jpg
-                ├── photo_2.jpg
-                ├── photo_3.jpg
-                └── photo_4.jpg
+            └── maps_photos/ ← Contains real photos scraped from Maps
 ```
 
 ## Setup
@@ -37,59 +34,58 @@ npm install
 
 ## Adding a New Lead
 
-### 1. Scaffold the site
+### 1. Scaffold the Site
+Use the scaffolding script to generate a new site. You must specify the **slug**, **business name**, and **template type** (`diagnostic`, `restaurant`, `coaching`, etc.). Optionally provide the Google Maps `place_id` to automatically scrape photos.
 
 ```bash
-node scripts/new_site.js <slug> "<Business Name>" [place_id]
+node scripts/new_site.js <slug> "<Business Name>" <template_type> [place_id]
 ```
 
 **Example:**
 ```bash
-node scripts/new_site.js sharma-clinic "Sharma Clinic" ChIJxxxxxxxxxxxxxxxx
+node scripts/new_site.js punjabi-dhaba "Punjabi Dhaba" restaurant ChIJxxxxxxxxxxxxxxxx
 ```
 
 This will:
-- Create `sites/sharma-clinic/` from the template
-- Replace `{{BUSINESS_NAME}}` throughout
-- Automatically scrape photos from Google Maps (if place_id provided)
+- Create `sites/punjabi-dhaba/` by copying the `templates/restaurant/` folder.
+- Replace `{{BUSINESS_NAME}}` placeholders.
+- If a `place_id` is provided, it triggers `scrape_maps.js` to download real photos into `assets/maps_photos/`.
 
-### 2. Scrape Maps photos (separately if needed)
+### 2. Manual Scraping (If Needed)
+If you didn't provide a `place_id` during scaffolding, or need to run it again, run:
 
 ```bash
 node scripts/scrape_maps.js <place_id> <slug>
 ```
 
-**Example:**
-```bash
-node scripts/scrape_maps.js ChIJl4sSfmt0YzkRgOK1Yl6voSc mehta-mri
-```
+> **Note:** The script runs Puppeteer in `headless: false` mode with stealth arguments. This is strictly required to bypass Google Maps bot detection on macOS. It spawns a fresh, isolated browser window rather than hijacking your active Chrome session, so it won't disrupt your work. It intercepts network buffers (e.g. `/gps-cs-s/`) rather than scraping the DOM for thumbnails.
 
-> **Tip:** The `place_id` is the last part of the Google Maps URL query string: `?query_place_id=<THIS_PART>`
+### 3. Edit & Refine
+Open `sites/<slug>/index.html` and populate the remaining placeholders:
+- Addresses (`{{BUSINESS_ADDRESS}}`), phone numbers, and Maps embed links (`{{MAPS_LINK}}`, `{{MAPS_EMBED_URL}}`).
+- Specific services, menus, or courses.
+- **Reviews:** Manually navigate to the business's Google Maps page, copy the text of real reviews, and paste them into the blockquote structures in the HTML.
+- **AI Assets:** Use AI generation tools to create generic abstract backgrounds or domain-specific accent photos (like a generic MRI scan or clinic reception) and save them to `assets/`. *Never use AI to fake real storefronts.*
 
-### 3. Edit the HTML
-
-Open `sites/<slug>/index.html` and fill in:
-- Business name, tagline, address, phone
-- Services list
-- Real reviews (copy from Google Maps)
-- Hours of operation
-
-### 4. Deploy to GitHub Pages
-
-Create a GitHub repo for the business and push:
+### 4. Deploy
+We use GitHub Pages on the `gh-pages` branch for a unified deployment. The entire `sites/` folder is pushed, allowing each lead to exist on its own path.
 
 ```bash
-cd sites/<slug>
-git init
-git remote add origin git@github.com:<username>/<repo>.git
-git add -A && git commit -m "Initial site"
-git push -u origin main
+git add -A
+git commit -m "Add new lead: <slug>"
+git push origin main:gh-pages
 ```
 
-Then enable GitHub Pages from the repo Settings → Pages → Deploy from `main`.
+The site will then be live at:
+`https://<your-username>.github.io/lead-no-hotel/sites/<slug>/`
+
+### 5. Update Master Tracking Sheet
+Finally, take the deployed URL and paste it into the designated column in the main Leads Google Sheet.
+
+---
 
 ## Current Leads
 
-| Slug | Business | Status |
-|------|----------|--------|
-| `mehta-mri` | Mehta MRI and Diagnostics, Ujjain | ✅ Built |
+| Slug | Business Type | Status | Live URL |
+|------|--------------|--------|----------|
+| `mehta-mri` | Diagnostic | ✅ Live | [View Site](https://shashi2290.github.io/lead-no-hotel/sites/mehta-mri/) |
