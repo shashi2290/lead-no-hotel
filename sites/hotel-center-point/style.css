@@ -248,6 +248,15 @@ ul { list-style: none; }
   overflow: hidden;
   background: var(--ink);
 }
+.hero-right::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('assets/bg-abstract.jpg') no-repeat center / cover;
+  opacity: .12;
+  z-index: 0;
+}
+.hero-right > * { position: relative; z-index: 1; }
 .hero-photo-frame { position: relative; width: 100%; height: 100%; }
 .hero-photo {
   width: 100%;
@@ -293,10 +302,59 @@ ul { list-style: none; }
 
 .sec-header { margin-bottom: 2.5rem; }
 
+/* ── HIGHWAY STRIP ────────────────────────────────────────── */
+.highway-strip {
+  position: relative;
+  height: 260px;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  display: flex;
+  align-items: center;
+  isolation: isolate;
+}
+.highway-strip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(26,10,7,.85) 0%, rgba(26,10,7,.6) 50%, rgba(26,10,7,.85) 100%);
+  z-index: 1;
+}
+.highway-strip-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: .5rem;
+}
+.highway-label {
+  font-family: var(--ff-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--cream);
+  letter-spacing: .02em;
+}
+.highway-desc {
+  font-size: .9rem;
+  color: rgba(250,247,244,.65);
+  max-width: 500px;
+}
+
 /* ── SERVICES ──────────────────────────────────────────────── */
 .services-section {
   padding: 5rem 0;
   background: var(--white);
+  position: relative;
+}
+.services-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('assets/bg-ambiance.jpg') no-repeat center / cover;
+  opacity: .04;
+  pointer-events: none;
 }
 
 .services-grid {
@@ -553,6 +611,15 @@ ul { list-style: none; }
 .contact-section {
   padding: 5rem 0;
   background: var(--ink);
+  position: relative;
+}
+.contact-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('assets/bg-ambiance.jpg') no-repeat center / cover;
+  opacity: .03;
+  pointer-events: none;
 }
 
 .contact-grid {
