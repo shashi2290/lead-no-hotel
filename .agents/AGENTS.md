@@ -22,6 +22,7 @@ Before starting any design work, load the [Frontend Design skill](https://github
 - **Match complexity to the vision:** Maximalist directions need elaborate execution; minimal directions need precision in spacing, type, and detail.
 - **Restraint:** Spend boldness in one signature element. Keep everything else quiet and disciplined. Cut any decoration that does not serve the brief.
 - **Writing as design material:** Words appear to make things easier to understand. Write from the end user's side. Use active voice. Name things by what people control and recognize.
+- **Don't Change any pre-existing templates** Note existing templates need not be changed, if a new template is to be created for a new category lead, take reference from hotel template
 
 ### Project Palette & Typography
 - **Typography:** Playfair Display (serif display) paired with DM Sans (clean sans-serif body).
@@ -116,13 +117,13 @@ If the `place_id` was provided in Step 1, the Maps photos will be scraped automa
 - Update `sites/<slug>/style.css` if minor layout adjustments are needed.
 - Use section padding of `5rem` as standard. Keep hero max `80vh`.
 
-### Step 4: Verify Locally
+### Step 4: Verify Locally by user by launching the new lead site
 Open the site file in a browser to check for CSS issues before deploying. Common issues:
 - Emoji rendering with text color overrides (remove color/font-weight from emoji containers)
 - Missing images (check asset paths)
 - Section spacing (too much whitespace between sections)
 
-### Step 5: Stage and Commit
+### Step 5: Stage and Commit(ONLY on user confirmation after full changes confirmed by user)
 ```bash
 git add -A
 git commit -m "Add new lead: <slug>"
