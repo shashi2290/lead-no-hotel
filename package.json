@@ -1,0 +1,12 @@
+{
+  "name": "leads-non-hotel",
+  "version": "1.0.0",
+  "description": "Freelance pitch websites for local businesses without a web presence",
+  "scripts": {
+    "scrape": "node scripts/scrape_maps.js",
+    "new-site": "node scripts/new_site.js"
+  },
+  "dependencies": {
+    "puppeteer": "^22.0.0"
+  }
+}

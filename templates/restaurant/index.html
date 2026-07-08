@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{BUSINESS_NAME}} | Restaurant</title>
+  <meta name="description" content="{{BUSINESS_NAME}} — authentic flavors, warm hospitality. Dine in or order online.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav id="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <span class="logo-hindi">{{BUSINESS_NAME}}</span>
+        <span class="logo-en">Restaurant &amp; Dining</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#menu">Menu</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#reviews">Reviews</a></li>
+        <li><a href="#contact">Reserve</a></li>
+      </ul>
+      <a href="tel:+91XXXXXXXXXX" class="nav-cta">Reserve a Table</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero-left">
+      <p class="hero-eyebrow">City · Cuisine Type</p>
+      <h1 class="hero-headline">Authentic<br>Flavours,<br><em>Every Visit.</em></h1>
+      <p class="hero-sub">Cuisine type · Dine-in · Takeaway<br>Address — Open daily HOURS</p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn-primary">Reserve a Table</a>
+        <a href="#menu" class="btn-ghost">View Menu</a>
+      </div>
+      <div class="hero-stat-row">
+        <div class="hero-stat"><span class="stat-num">4.X<span class="star">★</span></span><span class="stat-label">Google Rating</span></div>
+        <div class="hero-divider"></div>
+        <div class="hero-stat"><span class="stat-num">XXX+</span><span class="stat-label">Happy Diners</span></div>
+        <div class="hero-divider"></div>
+        <div class="hero-stat"><span class="stat-num">XX+</span><span class="stat-label">Years of Taste</span></div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-photo-frame">
+        <img src="assets/maps_photos/photo_1.jpg" alt="{{BUSINESS_NAME}}" class="hero-photo">
+        <div class="hero-photo-badge">
+          <span class="badge-hindi">{{BUSINESS_NAME}}</span>
+          <span class="badge-addr">Address here</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MENU SECTION — unique to restaurant type -->
+  <section id="menu" class="services-section">
+    <div class="wrap">
+      <header class="sec-header">
+        <span class="sec-eyebrow">What We Serve</span>
+        <h2 class="sec-title">Our Menu</h2>
+      </header>
+      <div class="services-grid">
+        <article class="svc-card">
+          <div class="svc-num">🍽</div>
+          <h3>Starters</h3>
+          <p>Paneer Tikka · Veg Manchurian · Samosa Chaat · Dahi Puri</p>
+        </article>
+        <article class="svc-card">
+          <div class="svc-num">🍛</div>
+          <h3>Main Course</h3>
+          <p>Dal Makhani · Shahi Paneer · Chicken Curry · Biryani</p>
+        </article>
+        <article class="svc-card">
+          <div class="svc-num">🫓</div>
+          <h3>Breads</h3>
+          <p>Butter Naan · Tandoori Roti · Paratha · Kulcha</p>
+        </article>
+        <article class="svc-card">
+          <div class="svc-num">🍹</div>
+          <h3>Beverages</h3>
+          <p>Lassi · Shakes · Fresh Juice · Chaas</p>
+        </article>
+        <article class="svc-card">
+          <div class="svc-num">🍮</div>
+          <h3>Desserts</h3>
+          <p>Gulab Jamun · Kulfi · Kheer · Gajar Halwa</p>
+        </article>
+        <article class="svc-card svc-card--accent">
+          <h3>Special Thali</h3>
+          <p>Full meal — starter, main, bread, dessert, and a drink.</p>
+          <a href="#contact" class="btn-primary btn-sm">Reserve Now →</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section id="gallery" class="gallery-section">
+    <div class="wrap">
+      <header class="sec-header sec-header--light">
+        <span class="sec-eyebrow sec-eyebrow--light">Real Photos</span>
+        <h2 class="sec-title sec-title--light">Inside Our Kitchen &amp; Dining</h2>
+      </header>
+      <div class="gallery-bento">
+        <figure class="gb-main"><img src="assets/maps_photos/photo_1.jpg" alt="Entrance"><figcaption>Restaurant Entrance</figcaption></figure>
+        <figure class="gb-sm gb-sm--1"><img src="assets/maps_photos/photo_2.jpg" alt="Dining area"><figcaption>Dining Area</figcaption></figure>
+        <figure class="gb-sm gb-sm--2"><img src="assets/maps_photos/photo_3.jpg" alt="Food"><figcaption>Signature Dish</figcaption></figure>
+        <figure class="gb-sm gb-sm--3"><img src="assets/maps_photos/photo_4.jpg" alt="Kitchen"><figcaption>Open Kitchen</figcaption></figure>
+        <div class="gb-rating-tile">
+          <div class="rating-big">4.X</div>
+          <div class="rating-stars">★★★★★</div>
+          <div class="rating-count">XXX reviews on Google</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REVIEWS -->
+  <section id="reviews" class="reviews-section">
+    <div class="wrap">
+      <header class="sec-header">
+        <span class="sec-eyebrow">Diner Voices</span>
+        <h2 class="sec-title">What Our Guests Say</h2>
+      </header>
+      <div class="reviews-grid">
+        <blockquote class="review-card reveal"><div class="review-stars">★★★★★</div><p>"Add a real Google Maps review here."</p><footer>Name <span>· Google Maps</span></footer></blockquote>
+        <blockquote class="review-card reveal"><div class="review-stars">★★★★★</div><p>"Add another real review here."</p><footer>Name <span>· Google Maps</span></footer></blockquote>
+        <blockquote class="review-card review-card--featured reveal"><div class="review-stars">★★★★★</div><p>"Add a longer featured review here — spans both columns."</p><footer>Name <span>· Google Maps</span></footer></blockquote>
+        <blockquote class="review-card reveal"><div class="review-stars">★★★★★</div><p>"Add a fourth review here."</p><footer>Name <span>· Google Maps</span></footer></blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="contact-section">
+    <div class="wrap contact-grid">
+      <div class="contact-info reveal">
+        <span class="sec-eyebrow sec-eyebrow--light">Come Visit Us</span>
+        <h2 class="sec-title sec-title--light">Reserve a<br>Table</h2>
+        <div class="ci-list">
+          <div class="ci-item"><span class="ci-icon">📍</span><div><strong>Address</strong><p>Full address,<br>City, State PIN</p></div></div>
+          <div class="ci-item"><span class="ci-icon">📞</span><div><strong>Phone</strong><p><a href="tel:+91XXXXXXXXXX">XXX-XXX-XXXX</a></p></div></div>
+          <div class="ci-item"><span class="ci-icon">🕐</span><div><strong>Hours</strong><p>Daily: 11:00 AM – 11:00 PM</p></div></div>
+        </div>
+      </div>
+      <form id="contactForm" class="contact-form reveal">
+        <h3>Reserve a Table</h3>
+        <div class="field"><label for="fname">Name</label><input id="fname" type="text" placeholder="Your name" required></div>
+        <div class="field"><label for="fphone">Phone</label><input id="fphone" type="tel" placeholder="10-digit mobile" required></div>
+        <div class="field"><label for="fguests">Number of Guests</label>
+          <select id="fguests" required>
+            <option value="" disabled selected>How many guests?</option>
+            <option>1–2</option><option>3–4</option><option>5–8</option><option>9+ (large group)</option>
+          </select>
+        </div>
+        <div class="field"><label for="fdate">Date &amp; Time</label><input id="fdate" type="datetime-local" required></div>
+        <button type="submit" class="btn-primary" style="width:100%;justify-content:center;">Confirm Reservation</button>
+      </form>
+    </div>
+
+    <div class="map-strip reveal">
+      <div class="map-label">
+        <span class="map-label-eyebrow">Find Us</span>
+        <span class="map-label-name">{{BUSINESS_ADDRESS}}</span>
+        <a href="{{MAPS_LINK}}" target="_blank" rel="noopener" class="map-open-btn">Open in Maps ↗</a>
+      </div>
+      <div class="map-frame">
+        <iframe title="{{BUSINESS_NAME}} Location" src="{{MAPS_EMBED_URL}}" width="100%" height="100%" style="border:0;" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <div class="footer-brand">{{BUSINESS_NAME}}</div>
+      <p class="footer-addr">{{BUSINESS_ADDRESS}}</p>
+      <p class="footer-copy">© 2026 {{BUSINESS_NAME}} · All rights reserved</p>
+    </div>
+  </footer>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal-box">
+      <div class="modal-check">✓</div>
+      <h3>Reservation Confirmed!</h3>
+      <p>We'll call you shortly to confirm your table.</p>
+      <button class="btn-primary close-modal">Done</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

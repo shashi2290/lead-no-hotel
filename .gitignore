@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Debug/temp files
+*.png
+*.py
+debug_*.png
+maps_*.png
+step*.png
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Env
+.env
+.env.local
