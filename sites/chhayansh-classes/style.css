@@ -303,6 +303,46 @@ ul { list-style: none; }
 
 .sec-header { margin-bottom: 2.5rem; }
 
+/* ── LOCATION STRIP ────────────────────────────────────────── */
+.location-strip {
+  position: relative;
+  height: 260px;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  display: flex;
+  align-items: center;
+  isolation: isolate;
+}
+.location-strip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(26,10,7,.85) 0%, rgba(26,10,7,.6) 50%, rgba(26,10,7,.85) 100%);
+  z-index: 1;
+}
+.location-strip-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: .5rem;
+}
+.location-label {
+  font-family: var(--ff-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--cream);
+  letter-spacing: .02em;
+}
+.location-desc {
+  font-size: .9rem;
+  color: rgba(250,247,244,.65);
+  max-width: 500px;
+}
+
 /* ── SERVICES / COURSES ────────────────────────────────────── */
 .services-section {
   padding: 5rem 0;
