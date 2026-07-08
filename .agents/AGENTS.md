@@ -9,26 +9,52 @@ The repository is modularized to handle multiple leads:
 - `scripts/` — Contains Node.js utilities for scaffolding sites (`new_site.js`) and fetching assets (`scrape_maps.js`).
 
 ## 2. Design & Aesthetics Guidelines
-- **Visual Identity:** All sites must employ distinctive, intentional, high-contrast visual design. Avoid generic "templated" aesthetics.
-- **Typography & Colors:** Use premium serif display faces (e.g., Playfair Display) paired with clean sans-serifs (e.g., DM Sans). Rely on deep, rich color palettes like crimson red against off-white (ink-on-paper style). 
-- **Layout:** Rely on plenty of whitespace, bento-grid style galleries, and clean section delineations. Avoid full-width stretched photos unless explicitly styled in a hero grid.
+
+### Load the Frontend Design Skill
+Before starting any design work, load the [Frontend Design skill](https://github.com/anthropics/skills/blob/main/skills/frontend-design/SKILL.md) for detailed guidance on distinctive, intentional visual design.
+
+### Core Design Principles
+- **Ground it in the subject:** Name the business, its audience, and the page's single job before designing. The subject's own world (its materials, location, instruments, vernacular) is where distinctive choices come from.
+- **Hero is a thesis:** Open with the most characteristic thing about the business. Be deliberate: a big number with a small label is the template answer — only use it if it's truly the best option.
+- **Typography carries personality:** Pair display and body faces deliberately, not the same families you'd reach for on any project. Set a clear type scale with intentional weights and spacing.
+- **Structure is information:** Structural devices (eyebrows, dividers, labels) should encode something true about the content. Question whether numbered markers like "01 / 02 / 03" make sense before using them — only appropriate if content is actually sequential.
+- **Leverage motion deliberately:** Scroll-triggered reveals, hover micro-interactions — orchestrate one moment rather than scattering effects everywhere. Extra animation can make a design feel AI-generated.
+- **Match complexity to the vision:** Maximalist directions need elaborate execution; minimal directions need precision in spacing, type, and detail.
+- **Restraint:** Spend boldness in one signature element. Keep everything else quiet and disciplined. Cut any decoration that does not serve the brief.
+- **Writing as design material:** Words appear to make things easier to understand. Write from the end user's side. Use active voice. Name things by what people control and recognize.
+
+### Project Palette & Typography
+- **Typography:** Playfair Display (serif display) paired with DM Sans (clean sans-serif body).
+- **Colors:** Deep crimson red (`#C0392B`) against warm off-white (`#FAF7F4`) — ink-on-paper style. Near-black (`#1A0A07`) for dark sections.
+- **Note on defaults:** The cream + serif + terracotta palette is a known AI-generated default. It is intentionally prescribed here by the project brief for consistency across leads. Where the brief leaves an axis free (e.g., layout, imagery, signature element), make a deliberate choice for that specific lead rather than reaching for the generic option.
+
+### Layout & Spacing
+- **Whitespace:** Bento-grid galleries and clean section delineations. Avoid full-width stretched photos unless explicitly styled in a hero grid.
+- **Section padding:** Default `7rem` is too generous. Use `5rem` as the standard.
+- **Hero height:** `min-height: 100vh` is excessive. Prefer `80vh` with tighter grid ratios (e.g., `1fr 1.3fr` to give more weight to the hero image).
+- **Emoji in CSS:** Do not apply `color`, `font-family`, `font-weight`, or `letter-spacing` to elements containing emoji. Emoji render best with no text styling overrides.
 
 ## 3. Media Assets & Reviews
 
-### Scraping Google Maps (Real Assets)
+### Scraping Google Maps Photos
 Google Maps aggressively blocks automated headless scraping. To bypass this on macOS:
 1. **Always use `headless: false`** in Puppeteer inside the `scripts/scrape_maps.js` script. 
 2. **Fresh Session:** Do NOT attach to or use the user's active Chrome session. Always spawn a fresh, separate browser window for scraping and debugging so it doesn't disrupt their work.
 3. Add necessary stealth arguments (`--no-sandbox`, `--disable-blink-features=AutomationControlled`).
 4. Set a standard, modern `User-Agent`.
-4. **Method:** Intercept network responses. Listen for network paths containing `/gps-cs-s/` or `/grass-cs/`.
-5. **Filtering:** Check the buffer byte-size. Filter out anything under ~5,000 bytes to ensure you are grabbing full-resolution photos rather than small icons or map tiles.
-6. **Storage:** Save them incrementally (e.g., `photo_1.jpg`, `photo_2.jpg`) into the lead's `assets/maps_photos/` directory.
+5. **Method:** Intercept network responses. Listen for all URLs containing `googleusercontent.com/`.
+6. **URL format:** Use `https://www.google.com/maps/place/?q=place_id:{placeId}` instead of the older `/search/?api=1&query_place_id=` format (the old format often doesn't load photos).
+7. **Click strategy:** First click the "Photos" tab button (`button[aria-label*="photos"]`), then click a photo thumbnail to open the lightbox viewer — this triggers full-resolution image loading. Arrow-key navigation through the gallery captures the high-res versions.
+8. **Filtering:** After capture, filter by buffer size > 40,000 bytes to keep only higher-quality images. Discard anything under 5,000 bytes.
+9. **Storage:** Save them incrementally (e.g., `photo_1.jpg`, `photo_2.jpg`) into the lead's `assets/maps_photos/` directory.
+10. **Troubleshooting:** If 0 photos are captured, try adding `--disable-web-security` and `--allow-running-insecure-content` flags to Puppeteer launch args.
 
-### AI Generated Images
-- Only use the `generate_image` tool for abstract backgrounds, textures, or generic domain-specific mood accents (e.g., MRI lightboxes, generic luxury restaurant table setups, clinic receptions). 
-- **Never** use AI to fake real storefronts or exterior signage. 
-- Ensure AI images blend cleanly via standard CSS (no weird overlays bleeding over real photos).
+### Free Stock / AI Background Images
+- When no `generate_image` tool is available, use free-to-use stock photos from Unsplash for abstract backgrounds, textures, or generic domain-specific mood accents (e.g., highway night scenes, hotel corridors, warm bokeh).
+- **Never** use AI or stock images to fake real storefronts or exterior signage.
+- Blend background images into CSS via `::before` pseudo-elements with low `opacity` (3–12%) behind content sections. Use `isolation: isolate` on the parent to keep them behind content.
+- Unsplash images are free for commercial use (no attribution required under the Unsplash License).
+- Download via: `curl -L -o assets/bg-{name}.jpg "https://unsplash.com/photos/{id}/download?force=true&w=1920"`
 
 ### Extracting Real Reviews
 To populate the `reviews-section` dynamically across any template:
@@ -36,6 +62,7 @@ To populate the `reviews-section` dynamically across any template:
 - Extract the text from the review containers (e.g., `.jftiEf` or equivalent classes).
 - Grab the `Author Name`, `Star Rating`, and `Review Text`.
 - Inject these manually or programmatically into the `blockquote` structures in the respective template's HTML.
+- If Maps is inaccessible, search travel blogs and third-party review sites for real guest quotes as a fallback. Note the source context (e.g., blog post, trip report).
 
 ## 4. Workflow for a New Lead
 
@@ -44,24 +71,46 @@ Identify the type of business (diagnostic, restaurant, coaching, etc.). Use the 
 ```bash
 node scripts/new_site.js <slug> "<Business Name>" <business_type> [place_id]
 ```
-*(Available templates in `templates/`: `diagnostic`, `restaurant`, `coaching`, etc.)*
+*(Available templates in `templates/`: `diagnostic`, `restaurant`, `coaching`, `hotel`, `retail`, `salon`)*
 
 ### Step 2: Fetch and Configure Assets
 If the `place_id` was provided in Step 1, the Maps photos will be scraped automatically into `sites/<slug>/assets/maps_photos/`.
 - If manual intervention is needed, run `node scripts/scrape_maps.js <place_id> <slug>`. 
-- Call the `generate_image` tool to create domain-specific AI assets (like backgrounds or accents) and place them in the `assets/` folder.
+- Source free Unsplash images for abstract domain-specific accents (e.g., highway lights for a motel, bokeh for a clinic).
+- Place all assets in the `assets/` folder.
 
 ### Step 3: Edit and Refine
 - Update `sites/<slug>/index.html` to fill in specific details (addresses, phone numbers, domain-specific text, and real reviews from Maps).
 - Update `sites/<slug>/style.css` if minor layout adjustments are needed.
+- Use section padding of `5rem` as standard. Keep hero max `80vh`.
 
-### Step 4: Deploy
-Push the repository to the `gh-pages` branch to auto-trigger GitHub Pages deployment:
+### Step 4: Verify Locally
+Open the site file in a browser to check for CSS issues before deploying. Common issues:
+- Emoji rendering with text color overrides (remove color/font-weight from emoji containers)
+- Missing images (check asset paths)
+- Section spacing (too much whitespace between sections)
+
+### Step 5: Stage and Commit
 ```bash
 git add -A
 git commit -m "Add new lead: <slug>"
-git push origin main:gh-pages
+git push origin main
 ```
 
-### Step 5: Update the Tracking Sheet
+### Step 6: Deploy (ONLY on user confirmation)
+**IMPORTANT: Do NOT deploy until the user explicitly confirms.**
+Push the repository to the `gh-pages` branch to auto-trigger GitHub Pages deployment:
+```bash
+git push origin main:gh-pages
+```
+After pushing, wait ~20s for CDN cache to clear. If styles look stale, force a cache bust by making a minor CSS change (e.g., bump a version comment) and re-push.
+
+### Step 7: Update the Tracking Sheet
 After deployment, verify the site is live at `https://shashi2290.github.io/lead-no-hotel/sites/<slug>/`. Manually paste this URL into the designated column in the master Google Sheet.
+
+## 5. GitHub Pages & Caching Notes
+- GitHub Pages CDN caches assets with `max-age=600` (10 minutes).
+- After pushing to `gh-pages`, the CDN may serve stale CSS for up to 10 minutes.
+- To force a cache bust: make a trivial change to the CSS (bump a version string in a comment) and re-push.
+- Verify fresh deployment by checking `x-cache: MISS` and `x-proxy-cache: MISS` in response headers.
+- The repository has a `.nojekyll` file in the root to prevent Jekyll processing.
