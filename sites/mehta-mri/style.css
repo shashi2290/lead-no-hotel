@@ -246,21 +246,33 @@ ul { list-style: none; }
 .hero-right {
   position: relative;
   overflow: hidden;
-  background: #1A0A07;   /* clean dark bg, no AI texture bleeding around photo */
+  background: #1A0A07;
 }
+/* AI-texture parallax layer — JS drives transform:translateY() */
+.hero-bg-parallax {
+  position: absolute;
+  inset: -20% 0;           /* oversized so parallax travel stays in-frame */
+  background: url('assets/hero_bg.jpg') no-repeat center / cover;
+  opacity: .18;
+  will-change: transform;
+  pointer-events: none;
+  z-index: 0;
+}
+.hero-right > * { position: relative; z-index: 1; }
 .hero-photo-frame {
   position: relative;
   width: 100%;
   height: 100%;
   display: flex;
-  align-items: stretch;
+  align-items: center;
+  justify-content: center;
 }
 .hero-photo {
   width: 100%;
   height: 100%;
   object-fit: contain;   /* full photo visible, no crop */
   object-position: center center;
-  background: #1A0A07;
+  background: transparent;
 }
 .hero-photo-badge {
   position: absolute;

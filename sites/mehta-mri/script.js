@@ -18,11 +18,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Sticky nav shrink on scroll ───────────────────────────────────────────
   const nav = document.getElementById('nav') || document.getElementById('header');
-  if (nav) {
-    window.addEventListener('scroll', () => {
-      nav.classList.toggle('nav--scrolled', window.scrollY > 60);
-    }, { passive: true });
+
+  // ── Hero background parallax ─────────────────────────────────────────────
+  const heroBg = document.querySelector('.hero-bg-parallax');
+  const heroSection = document.querySelector('.hero');
+  let rafPending = false;
+
+  function updateParallax() {
+    rafPending = false;
+    if (!heroBg || !heroSection) return;
+    const rect = heroSection.getBoundingClientRect();
+    // Only animate while hero is visible
+    if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+    const scrolled = -rect.top;           // px scrolled past hero top
+    const shift = scrolled * 0.30;        // 30% speed = visible depth
+    heroBg.style.transform = `translateY(${shift}px)`;
   }
+
+  window.addEventListener('scroll', () => {
+    if (nav) nav.classList.toggle('nav--scrolled', window.scrollY > 60);
+    if (!rafPending) {
+      rafPending = true;
+      requestAnimationFrame(updateParallax);
+    }
+  }, { passive: true });
+
+  updateParallax(); // run once on load
 
   // ── Contact / booking form ────────────────────────────────────────────────
   const form    = document.getElementById('contactForm');
