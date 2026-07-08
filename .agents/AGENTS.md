@@ -34,6 +34,37 @@ Before starting any design work, load the [Frontend Design skill](https://github
 - **Hero height:** `min-height: 100vh` is excessive. Prefer `80vh` with tighter grid ratios (e.g., `1fr 1.3fr` to give more weight to the hero image).
 - **Emoji in CSS:** Do not apply `color`, `font-family`, `font-weight`, or `letter-spacing` to elements containing emoji. Emoji render best with no text styling overrides.
 
+### Hero-Right Background Pattern (canonical)
+Every site must use this exact pattern for `.hero-right` — do not use `background-image` directly on the element:
+```css
+.hero-right { position: relative; overflow: hidden; background: var(--ink); }
+.hero-right::before {
+  content: ''; position: absolute; inset: 0;
+  background: url('assets/bg-abstract.jpg') no-repeat center / cover;
+  opacity: .12; z-index: 0;
+}
+.hero-right > * { position: relative; z-index: 1; }
+.hero-photo-frame { position: relative; width: 100%; height: 100%; }
+.hero-photo { width: 100%; height: 100%; object-fit: cover; opacity: .9; }
+```
+- Replace `bg-abstract.jpg` with the domain-appropriate asset for each lead (e.g. `hero_bg.jpg`, `bg-water.jpg`).
+- **Do NOT** use `background-attachment: fixed` on `.hero-right` itself — `overflow: hidden` on the parent silently breaks it in WebKit/Blink.
+
+### Location Strip (required after every hero)
+Every site must include a `.location-strip` div immediately after the `</section>` closing tag of the hero. This provides the `background-attachment: fixed` CSS parallax effect:
+```html
+<div class="location-strip" style="background-image: url('assets/bg-abstract.jpg');">
+  <div class="wrap location-strip-inner">
+    <span class="location-label">📍 Full Address, City</span>
+    <span class="location-desc">Access info · hours · one key differentiator</span>
+  </div>
+</div>
+```
+- The CSS for `.location-strip` is already in every template's `style.css`.
+- Use `background-attachment: fixed` here (not in hero-right) — it works correctly because `.location-strip` is not `overflow: hidden`.
+- Background image set via `style` attribute so it can differ per lead without CSS changes.
+- All four templates (`diagnostic`, `coaching`, `hotel`, `restaurant`) have the HTML placeholder with `{{ADDRESS}}` / `{{ADDRESS_DESC}}` tokens — fill these in during Step 3.
+
 ## 3. Media Assets & Reviews
 
 ### Scraping Google Maps Photos
@@ -81,6 +112,7 @@ If the `place_id` was provided in Step 1, the Maps photos will be scraped automa
 
 ### Step 3: Edit and Refine
 - Update `sites/<slug>/index.html` to fill in specific details (addresses, phone numbers, domain-specific text, and real reviews from Maps).
+- **Fill in the location strip:** Replace `{{ADDRESS}}` with the full street address and `{{ADDRESS_DESC}}` with 1–2 lines of access info + hours. Change `style="background-image: url('assets/bg-abstract.jpg');"` to the lead's actual background asset.
 - Update `sites/<slug>/style.css` if minor layout adjustments are needed.
 - Use section padding of `5rem` as standard. Keep hero max `80vh`.
 
