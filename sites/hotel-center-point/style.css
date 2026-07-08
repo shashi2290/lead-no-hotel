@@ -1,5 +1,5 @@
 /* =============================================================
-   MEHTA MRI & DIAGNOSTICS — style.css
+   HOTEL CENTER POINT — style.css
    Design: Crimson + Off-white serif identity
    Fonts: Playfair Display (display) + DM Sans (body)
    ============================================================= */
@@ -249,11 +249,29 @@ ul { list-style: none; }
   background: var(--ink);
 }
 .hero-photo-frame { position: relative; width: 100%; height: 100%; }
-.hero-photo {
+.hero-visual {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  opacity: .9;
+  background: linear-gradient(145deg, #1A0A07 0%, #2D1810 30%, #4A2820 60%, #1A0A07 100%);
+  position: relative;
+  overflow: hidden;
+}
+.hero-visual::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 70% 30%, rgba(192,57,43,.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 80%, rgba(192,57,43,.08) 0%, transparent 50%);
+}
+.hero-visual::after {
+  content: '✦ ⋆ ●';
+  position: absolute;
+  bottom: 3rem;
+  right: 3rem;
+  font-size: 1.4rem;
+  letter-spacing: .6em;
+  color: rgba(250,247,244,.06);
 }
 .hero-photo-badge {
   position: absolute;
@@ -381,6 +399,42 @@ ul { list-style: none; }
   margin: 0;
 }
 .gb-sm { position: relative; overflow: hidden; margin: 0; }
+
+.gallery-placeholder {
+  width: 100%; height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  transition: transform .5s var(--ease);
+  position: relative;
+}
+.gp-main {
+  background: linear-gradient(135deg, #2D1810 0%, #1A0A07 50%, #2D1810 100%);
+}
+.gp-room {
+  background: linear-gradient(135deg, #3D2820 0%, #2D1810 100%);
+}
+.gp-food {
+  background: linear-gradient(135deg, #4A3028 0%, #2D1810 100%);
+}
+.gp-parking {
+  background: linear-gradient(135deg, #3D2820 0%, #1A0A07 100%);
+}
+.gp-icon {
+  font-size: 2rem;
+  line-height: 1;
+  opacity: .6;
+}
+.gp-text {
+  font-family: var(--ff-display);
+  font-size: .85rem;
+  color: rgba(250,247,244,.4);
+  letter-spacing: .04em;
+  font-weight: 700;
+}
+.gallery-bento figure:hover .gallery-placeholder { transform: scale(1.04); }
 
 .gallery-bento img {
   width: 100%; height: 100%;
