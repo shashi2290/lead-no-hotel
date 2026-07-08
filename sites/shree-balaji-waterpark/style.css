@@ -822,6 +822,7 @@ ul { list-style: none; }
 
 /* ── SCROLL REVEAL ─────────────────────────────────────────── */
 .reveal {
+  will-change: opacity, transform;
   opacity: 0;
   transform: translateY(24px);
   transition: opacity .7s var(--ease), transform .7s var(--ease);
