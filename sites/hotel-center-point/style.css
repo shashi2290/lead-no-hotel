@@ -161,8 +161,8 @@ ul { list-style: none; }
 /* ── HERO ──────────────────────────────────────────────────── */
 .hero {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  min-height: 100vh;
+  grid-template-columns: 1fr 1.3fr;
+  min-height: 80vh;
   padding-top: 72px;
 }
 
@@ -170,7 +170,7 @@ ul { list-style: none; }
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 5rem 5rem 5rem 5%;
+  padding: 3rem 3rem 3rem 5%;
   background: var(--cream);
 }
 
@@ -180,7 +180,7 @@ ul { list-style: none; }
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--crimson);
-  margin-bottom: 1.5rem;
+  margin-bottom: .75rem;
 }
 
 .hero-headline {
@@ -189,7 +189,7 @@ ul { list-style: none; }
   font-weight: 900;
   line-height: 1.08;
   color: var(--ink);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 .hero-headline em {
   font-style: italic;
@@ -199,8 +199,8 @@ ul { list-style: none; }
 .hero-sub {
   font-size: 1rem;
   color: var(--ink-soft);
-  line-height: 1.7;
-  margin-bottom: 2.5rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
   max-width: 420px;
 }
 
@@ -208,7 +208,7 @@ ul { list-style: none; }
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
-  margin-bottom: 3rem;
+  margin-bottom: 1.5rem;
 }
 
 .hero-stat-row {
@@ -216,7 +216,7 @@ ul { list-style: none; }
   align-items: center;
   gap: 1.5rem;
   border-top: 1px solid var(--border);
-  padding-top: 2rem;
+  padding-top: 1.25rem;
 }
 .hero-stat {
   display: flex;
@@ -277,7 +277,7 @@ ul { list-style: none; }
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--crimson);
-  margin-bottom: .75rem;
+  margin-bottom: .5rem;
 }
 .sec-eyebrow--light { color: rgba(250,247,244,.6); }
 
@@ -291,11 +291,11 @@ ul { list-style: none; }
 .sec-title--light { color: var(--cream); }
 .sec-title em { font-style: italic; color: var(--crimson); }
 
-.sec-header { margin-bottom: 3rem; }
+.sec-header { margin-bottom: 2.5rem; }
 
 /* ── SERVICES ──────────────────────────────────────────────── */
 .services-section {
-  padding: 7rem 0;
+  padding: 5rem 0;
   background: var(--white);
 }
 
@@ -319,13 +319,9 @@ ul { list-style: none; }
 }
 
 .svc-num {
-  font-family: var(--ff-display);
-  font-size: 2.2rem;
-  font-weight: 900;
-  color: var(--border);
+  font-size: 2rem;
   margin-bottom: .75rem;
   line-height: 1;
-  letter-spacing: -.02em;
 }
 
 .svc-card h3 {
@@ -361,7 +357,7 @@ ul { list-style: none; }
 
 /* ── GALLERY ───────────────────────────────────────────────── */
 .gallery-section {
-  padding: 7rem 0;
+  padding: 5rem 0;
   background: var(--ink);
 }
 
@@ -496,7 +492,7 @@ ul { list-style: none; }
 
 /* ── REVIEWS ───────────────────────────────────────────────── */
 .reviews-section {
-  padding: 7rem 0;
+  padding: 5rem 0;
   background: var(--white);
 }
 
@@ -555,7 +551,7 @@ ul { list-style: none; }
 
 /* ── CONTACT ───────────────────────────────────────────────── */
 .contact-section {
-  padding: 7rem 0;
+  padding: 5rem 0;
   background: var(--ink);
 }
 
@@ -628,7 +624,7 @@ ul { list-style: none; }
 
 /* ── MAP STRIP ─────────────────────────────────────────────── */
 .map-strip {
-  margin-top: 4rem;
+  margin-top: 3rem;
   border-radius: 12px;
   overflow: hidden;
   display: grid;
