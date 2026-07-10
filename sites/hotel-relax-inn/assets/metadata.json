@@ -8,8 +8,12 @@
   "rating": "4.9 stars ",
   "reviewCount": "Write a review",
   "photos": [
-    "photo_1.jpg"
+    "photo_1.jpg",
+    "photo_2.jpg",
+    "photo_3.jpg",
+    "photo_4.jpg",
+    "photo_5.jpg"
   ],
   "reviews": [],
-  "scrapedAt": "2026-07-10T16:53:29.340Z"
+  "scrapedAt": "2026-07-10T17:01:36.779Z"
 }

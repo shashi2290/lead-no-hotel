@@ -1,5 +1,5 @@
 /**
- * scrape_maps.js — Single-visit Google Maps data fetcher
+ * scrape_maps.js — Single-visit Google Maps data fetcher (optimized for photos)
  *
  * Usage:
  *   node scripts/scrape_maps.js <place_id> <slug>
@@ -86,23 +86,12 @@ async function extractMetadata(page) {
 
 async function clickPhotosTab(page) {
   return page.evaluate(() => {
-    // Find and click the Photos tab/button
+    // Strategy 1: Find Photos tab button
     const buttons = document.querySelectorAll('button[role="tab"], button[aria-label*="Photos"], button[aria-label*="photos"]');
     for (const btn of buttons) {
       if (btn.offsetParent !== null && (btn.textContent.toLowerCase().includes('photo') || btn.getAttribute('aria-label')?.toLowerCase().includes('photo'))) {
         btn.click();
         return 'clicked photos tab';
-      }
-    }
-    // Fallback: try clicking an image in the photo strip
-    const imgs = document.querySelectorAll('img[src*="googleusercontent"]');
-    for (const img of imgs) {
-      let el = img;
-      for (let i = 0; i < 6; i++) {
-        if (!el.parentElement) break;
-        el = el.parentElement;
-        if (el.tagName === 'A' && el.href) { el.click(); return 'clicked anchor wrapping img'; }
-        if (el.tagName === 'BUTTON' || el.getAttribute('role') === 'button' || el.getAttribute('jsaction')?.includes('click')) { el.click(); return 'clicked button parent of img'; }
       }
     }
     return 'no photos tab found';
@@ -120,6 +109,60 @@ async function clickReviewsTab(page) {
     }
     return 'no reviews tab found';
   });
+}
+
+async function openPhotoLightbox(page) {
+  return page.evaluate(() => {
+    // Try to open the lightbox by clicking the first photo in the photo strip
+    const imgs = document.querySelectorAll('img[src*="googleusercontent"]');
+    for (const img of imgs) {
+      let el = img;
+      for (let i = 0; i < 8; i++) {
+        if (!el.parentElement) break;
+        el = el.parentElement;
+        if (el.tagName === 'A' && el.href) { el.click(); return 'clicked anchor for lightbox'; }
+        if (el.tagName === 'BUTTON' || el.getAttribute('role') === 'button' || el.getAttribute('jsaction')?.includes('click')) { el.click(); return 'clicked button for lightbox'; }
+        if (el.tagName === 'DIV' && (el.onclick || el.getAttribute('jsaction'))) { el.click(); return 'clicked div with handler'; }
+      }
+    }
+    // Direct click on first image
+    if (imgs.length > 0) { imgs[0].click(); return 'clicked first img directly'; }
+    return 'no images to click';
+  });
+}
+
+async function clickPhotoStripThumbnails(page) {
+  return page.evaluate(() => {
+    // Find and click multiple thumbnails in the photo strip to load different full-res images
+    const imgs = document.querySelectorAll('img[src*="googleusercontent"]');
+    const clicked = [];
+    for (const img of imgs) {
+      if (clicked.length >= 10) break;
+      try {
+        img.click();
+        clicked.push('clicked thumbnail');
+        // Small delay between clicks
+        const start = Date.now();
+        while (Date.now() - start < 500) {}
+      } catch(e) {}
+    }
+    return `clicked ${clicked.length} thumbnails`;
+  });
+}
+
+async function navigateGallery(page, maxSteps = 80) {
+  // Navigate with arrow keys and occasionally click next button
+  for (let i = 0; i < maxSteps; i++) {
+    await page.keyboard.press('ArrowRight');
+    await sleep(800);
+    // Every 10 steps, also try clicking the next button in lightbox
+    if (i % 10 === 9) {
+      await page.evaluate(() => {
+        const nextBtn = document.querySelector('button[aria-label*="Next"], button[aria-label*="next"], button[jsaction*="next"]');
+        if (nextBtn) nextBtn.click();
+      });
+    }
+  }
 }
 
 async function scrollReviews(page, iterations = 15) {
@@ -166,6 +209,8 @@ async function saveMetadata() {
     args: [
       '--no-sandbox',
       '--disable-blink-features=AutomationControlled',
+      '--disable-web-security',
+      '--allow-running-insecure-content',
     ],
     defaultViewport: null
   });
@@ -179,7 +224,7 @@ async function saveMetadata() {
     if (url.includes('googleusercontent.com/')) {
       try {
         const buf = await resp.buffer();
-        if (buf.length < 5000) return;
+        if (buf.length < 3000) return; // Lower threshold to catch more
         const id = url.split('/').pop().split('=')[0];
         const existing = capturedImages.get(id);
         if (!existing || buf.length > existing.buf.length) {
@@ -212,17 +257,25 @@ async function saveMetadata() {
   console.log(`  Rating: ${meta.rating || 'N/A'}`);
   console.log(`  Reviews: ${meta.reviewCount || 'N/A'}`);
 
-  // 2. Photos
+  // 2. Photos - open lightbox and navigate aggressively
   console.log('\n📸 Opening Photos...');
-  const photoResult = await clickPhotosTab(page);
-  console.log('  ' + photoResult);
-  await sleep(8000);
+  const photoTabResult = await clickPhotosTab(page);
+  console.log('  ' + photoTabResult);
+  await sleep(5000);
 
-  // Navigate gallery with arrows
-  for (let i = 0; i < 40; i++) {
-    await page.keyboard.press('ArrowRight');
-    await sleep(1000);
-  }
+  // If lightbox didn't open via tab click, try explicit lightbox opener
+  const lightboxResult = await openPhotoLightbox(page);
+  console.log('  ' + lightboxResult);
+  await sleep(5000);
+
+  // Also try clicking multiple thumbnails in the strip
+  const stripResult = await clickPhotoStripThumbnails(page);
+  console.log('  ' + stripResult);
+  await sleep(5000);
+
+  // Navigate gallery aggressively
+  console.log('  Navigating gallery...');
+  await navigateGallery(page, 80);
   await sleep(5000);
 
   // 3. Reviews
@@ -241,13 +294,13 @@ async function saveMetadata() {
     console.log(`  [${i+1}] ${r.name} — ${r.stars}`);
   });
 
-  // Save photos
+  // Save photos - use lower threshold
   console.log('\n💾 Saving photos...');
   const sorted = [...capturedImages.entries()]
-    .filter(([, { buf }]) => buf.length > 40000)
+    .filter(([, { buf }]) => buf.length > 15000) // Lower threshold
     .sort((a, b) => b[1].buf.length - a[1].buf.length);
 
-  console.log(`  Found ${sorted.length} high-res images out of ${capturedImages.size} total captures`);
+  console.log(`  Found ${sorted.length} images >15KB out of ${capturedImages.size} total captures`);
 
   let count = 0;
   for (const [, { buf }] of sorted) {
@@ -259,12 +312,14 @@ async function saveMetadata() {
     if (count >= 5) break;
   }
 
-  // Fallback: if no high-res, save the largest from all captures
-  if (count === 0) {
-    console.log('  No high-res found, saving largest captures...');
+  // Fallback: if still not enough, save the largest from all captures
+  if (count < 5) {
+    console.log(`  Only got ${count}, saving largest from all captures...`);
     const allSorted = [...capturedImages.entries()]
       .sort((a, b) => b[1].buf.length - a[1].buf.length);
     for (const [, { buf }] of allSorted) {
+      // Check if already saved
+      if (metadata.photos.includes(`photo_${count+1}.jpg`)) continue;
       count++;
       const fp = path.join(assetsDir, `photo_${count}.jpg`);
       fs.writeFileSync(fp, buf);
