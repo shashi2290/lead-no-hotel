@@ -1,0 +1,35 @@
+{
+  "placeId": "ChIJaVReEjln1TsRNT5dgdqc7iw",
+  "slug": "femina-boutique",
+  "address": "Pg college road, Signature Lifestyle Rd, Chhindwara, Madhya Pradesh 480001",
+  "phone": "094246 20202",
+  "hours": "",
+  "website": "",
+  "rating": "5.0 stars ",
+  "reviewCount": "Write a review",
+  "photos": [
+    "photo_1.jpg",
+    "photo_2.jpg",
+    "photo_3.jpg",
+    "photo_4.jpg",
+    "photo_5.jpg"
+  ],
+  "reviews": [
+    {
+      "name": "Prerna Malvi",
+      "stars": "5 stars",
+      "text": "Femina Boutique is a wonderful place for anyone looking for stylish, elegant, and high-quality outfits. Their collection is trendy yet classy, with options for both casual wear and special occasions. The designs are unique, and the fabric quality is impressive, making every outfit feel comfortable and premium."
+    },
+    {
+      "name": "Surjit Kaur",
+      "stars": "5 stars",
+      "text": "This boutique is a hidden gem.The collection is fresh, stylish,and of excellent quality. Navneet is very helpful in suggesting outfits that suit your personality. The stitching is just perfect!\nTruly professional work.😊 …"
+    },
+    {
+      "name": "surinder kaur Sabharwal",
+      "stars": "5 stars",
+      "text": "I absolutely love shopping at Femina boutique.Every piece is so elegant, trndy,and unique.I get compliments every time I wear their collections.\nAmazing stitching n customization."
+    }
+  ],
+  "scrapedAt": "2026-07-10T17:10:05.879Z"
+}
