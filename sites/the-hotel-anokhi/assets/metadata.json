@@ -6,11 +6,14 @@
   "hours": "",
   "website": "",
   "rating": "4.8 stars ",
-  "reviewCount": "Write a review",
+  "reviewCount": "(198)",
   "photos": [
     "photo_1.jpg",
-    "photo_2.jpg"
+    "photo_2.jpg",
+    "photo_3.jpg",
+    "photo_4.jpg",
+    "photo_5.jpg"
   ],
   "reviews": [],
-  "scrapedAt": "2026-07-10T17:24:20.447Z"
+  "scrapedAt": "2026-07-10T17:41:56.642Z"
 }
