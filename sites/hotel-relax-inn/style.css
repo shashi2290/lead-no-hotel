@@ -1,5 +1,5 @@
 /* =============================================================
-   APNA DHABA & HOTEL — style.css
+   HOTEL RELAX INN — style.css
    Design: Crimson + Off-white serif identity
    Fonts: Playfair Display (display) + DM Sans (body)
    ============================================================= */
@@ -252,7 +252,7 @@ ul { list-style: none; }
   content: '';
   position: absolute;
   inset: 0;
-  background: url('assets/bg-dhaba.jpg') no-repeat center / cover;
+  background: url('assets/bg-hotel.jpg') no-repeat center / cover;
   opacity: .12;
   z-index: 0;
 }
