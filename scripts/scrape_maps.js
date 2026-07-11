@@ -7,7 +7,7 @@
  * Fetches ALL data in ONE visit:
  *   - Business metadata (address, phone, hours, website, rating, review count)
  *   - Up to 5 high-res photos → sites/<slug>/assets/maps_photos/photo_N.jpg
- *   - Up to 5 real reviews
+ *   - Up to 5 real reviews (from "More reviews" button on main page)
  *   - Saves metadata.json with all extracted data
  */
 
@@ -40,6 +40,7 @@ const metadata = {
 };
 
 const capturedImages = new Map();
+let enoughPhotos = false;
 
 async function sleep(ms) {
   return new Promise(r => setTimeout(r, ms));
@@ -49,23 +50,11 @@ async function randomSleep(min = 500, max = 1500) {
   return sleep(Math.floor(Math.random() * (max - min + 1)) + min);
 }
 
-async function humanType(page, selector, text) {
-  await page.click(selector);
-  await randomSleep(200, 500);
-  for (const char of text) {
-    await page.keyboard.type(char, { delay: Math.random() * 200 + 50 });
-  }
-}
-
 async function extractMetadata(page) {
   return page.evaluate(() => {
     const getText = (sel) => {
       const el = document.querySelector(sel);
       return el ? el.textContent.trim() : '';
-    };
-    const getHref = (sel) => {
-      const el = document.querySelector(sel);
-      return el ? (el.href || el.getAttribute('href') || '') : '';
     };
 
     const addrEl = document.querySelector('[data-item-id="address"]');
@@ -87,32 +76,6 @@ async function extractMetadata(page) {
     const reviewCount = reviewCountEl ? reviewCountEl.textContent.trim() : '';
 
     return { address, phone, website, hours, rating, reviewCount };
-  });
-}
-
-async function clickPhotosTab(page) {
-  return page.evaluate(() => {
-    const buttons = document.querySelectorAll('button[role="tab"], button[aria-label*="Photos"], button[aria-label*="photos"]');
-    for (const btn of buttons) {
-      if (btn.offsetParent !== null && (btn.textContent.toLowerCase().includes('photo') || btn.getAttribute('aria-label')?.toLowerCase().includes('photo'))) {
-        btn.click();
-        return 'clicked photos tab';
-      }
-    }
-    return 'no photos tab found';
-  });
-}
-
-async function clickReviewsTab(page) {
-  return page.evaluate(() => {
-    const buttons = document.querySelectorAll('button[role="tab"], button[aria-label*="Reviews"], button[aria-label*="reviews"]');
-    for (const btn of buttons) {
-      if (btn.offsetParent !== null && (btn.textContent.toLowerCase().includes('review') || btn.getAttribute('aria-label')?.toLowerCase().includes('review'))) {
-        btn.click();
-        return 'clicked reviews tab';
-      }
-    }
-    return 'no reviews tab found';
   });
 }
 
@@ -153,6 +116,10 @@ async function clickPhotoStripThumbnails(page) {
 
 async function navigateGallery(page, maxSteps = 60) {
   for (let i = 0; i < maxSteps; i++) {
+    if (enoughPhotos) {
+      console.log('  Enough photos captured, stopping gallery navigation');
+      break;
+    }
     await page.keyboard.press('ArrowRight');
     await randomSleep(600, 1200);
     if (i % 8 === 7) {
@@ -162,7 +129,6 @@ async function navigateGallery(page, maxSteps = 60) {
       });
       await randomSleep(500, 1000);
     }
-    // Random mouse movement to appear human
     if (i % 5 === 0) {
       await page.mouse.move(
         Math.random() * 800 + 200,
@@ -172,34 +138,128 @@ async function navigateGallery(page, maxSteps = 60) {
   }
 }
 
-async function scrollReviews(page, iterations = 12) {
+async function clickMoreReviews(page) {
+  return page.evaluate(() => {
+    // Find "More reviews" or "All reviews" button on main page
+    const selectors = [
+      'button[jsaction*="pane.rating.moreReviews"]',
+      'button[jsaction*="review.more"]',
+      'button[aria-label*="More reviews" i]',
+      'button[aria-label*="All reviews" i]',
+      'a[href*="review"]',
+      'button:has-text("More reviews")',
+      'button:has-text("All reviews")',
+      'span:has-text("More reviews")',
+      'span:has-text("All reviews")'
+    ];
+    
+    for (const sel of selectors) {
+      try {
+        const els = document.querySelectorAll(sel);
+        for (const el of els) {
+          if (el.offsetParent !== null) {
+            el.click();
+            return `clicked more reviews via ${sel}`;
+          }
+        }
+      } catch(e) {}
+    }
+    
+    // Fallback: search for any clickable element with "review" text
+    const clickables = document.querySelectorAll('button, a, span[role="button"], div[role="button"]');
+    for (const el of clickables) {
+      const text = (el.textContent || '').toLowerCase();
+      if ((text.includes('more review') || text.includes('all review') || text.includes('view all review')) && el.offsetParent !== null) {
+        el.click();
+        return 'clicked more reviews via text search';
+      }
+    }
+    
+    return 'no more reviews button found';
+  });
+}
+
+async function scrollReviewsList(page, iterations = 10) {
   for (let i = 0; i < iterations; i++) {
     await page.evaluate(() => {
-      const divs = document.querySelectorAll('div[role="feed"]');
-      if (divs.length > 0) divs[0].scrollBy(0, 800);
-      const containers = document.querySelectorAll('.m6QErb');
+      // Scroll the reviews dialog/list
+      const dialogs = document.querySelectorAll('[role="dialog"]');
+      for (const d of dialogs) {
+        if (d.scrollHeight > d.clientHeight) d.scrollBy(0, 1500);
+      }
+      const feedDivs = document.querySelectorAll('div[role="feed"]');
+      feedDivs.forEach(d => d.scrollBy(0, 1500));
+      const containers = document.querySelectorAll('.m6QErb, .review-list, [jsaction*="review"]');
       for (const c of containers) {
-        if (c.scrollHeight > c.clientHeight) c.scrollBy(0, 600);
+        if (c.scrollHeight > c.clientHeight) c.scrollBy(0, 1500);
       }
     });
-    await randomSleep(800, 1500);
+    await randomSleep(1000, 2000);
   }
-  await sleep(3000);
+  await sleep(2000);
 }
 
 async function extractReviews(page) {
   return page.evaluate(() => {
-    const items = document.querySelectorAll('.jftiEf');
     const results = [];
+    
+    // Try multiple selectors for review items - works both in dialog and main page
+    const reviewSelectors = [
+      '.jftiEf',           // Classic
+      '[data-review-id]',  // Newer
+      '.review-item',      // Alternative
+      '.gws-localreviews__review', // Another variant
+      'div[jsaction*="review"]',   // JS action based
+      '.MyEned'            // In dialog
+    ];
+    
+    let items = [];
+    for (const sel of reviewSelectors) {
+      items = document.querySelectorAll(sel);
+      if (items.length > 0) break;
+    }
+    
+    // If still no items, try finding all elements with review-like structure
+    if (items.length === 0) {
+      const allDivs = document.querySelectorAll('div');
+      items = Array.from(allDivs).filter(div => {
+        const text = div.textContent || '';
+        return text.length > 50 && text.length < 3000 && 
+               (div.querySelector('[aria-label*="star"]') || div.querySelector('[role="img"][aria-label*="star"]'));
+      });
+    }
+    
     items.forEach(item => {
-      const nameEl = item.querySelector('.d4r55');
-      const starsEl = item.querySelector('.kvMYJc');
-      const textEl = item.querySelector('.wiI7pd');
+      // Try multiple selectors for name
+      const nameEl = item.querySelector('.d4r55') || 
+                     item.querySelector('[class*="name"]') ||
+                     item.querySelector('.TSUbDb') ||
+                     item.querySelector('.WNxHhc') ||
+                     item.querySelector('span[class*="font"]') ||
+                     item.querySelector('div[class*="font"]');
+      
+      // Try multiple selectors for stars
+      const starsEl = item.querySelector('.kvMYJc') ||
+                      item.querySelector('[role="img"][aria-label*="star"]') ||
+                      item.querySelector('[aria-label*="star"]');
+      
+      // Try multiple selectors for text
+      const textEl = item.querySelector('.wiI7pd') ||
+                     item.querySelector('.MyEned') ||
+                     item.querySelector('[class*="comment"]') ||
+                     item.querySelector('[jsaction*="review"]') ||
+                     item.querySelector('span[style*="font"]');
+      
       const name = nameEl ? nameEl.textContent.trim() : '';
-      const stars = starsEl ? starsEl.getAttribute('aria-label') : '';
+      const stars = starsEl ? (starsEl.getAttribute('aria-label') || starsEl.textContent.trim()) : '';
       const text = textEl ? textEl.textContent.trim() : '';
-      if (text) results.push({ name, stars, text });
+      
+      // Filter out non-review content
+      if (text && text.length > 10 && text.length < 3000) {
+        results.push({ name, stars, text });
+      }
     });
+    
     return results;
   });
 }
@@ -228,7 +288,6 @@ async function handleConsent(page) {
 }
 
 (async () => {
-  // Use persistent user data dir to maintain cookies/session
   const userDataDir = path.join(__dirname, '..', '.puppeteer_profile');
   fs.mkdirSync(userDataDir, { recursive: true });
 
@@ -248,9 +307,26 @@ async function handleConsent(page) {
     ignoreDefaultArgs: ['--enable-automation']
   });
 
-  const page = await browser.newPage();
+  // Track pages to prevent multiple tabs
+  const pages = await browser.pages();
+  const page = pages[0] || await browser.newPage();
   
-  // Anti-detection: override navigator.webdriver
+  // Close any extra pages
+  if (pages.length > 1) {
+    for (let i = 1; i < pages.length; i++) {
+      await pages[i].close();
+    }
+  }
+  
+  // Listen for new pages and close them
+  browser.on('targetcreated', async (target) => {
+    const newPage = await target.page();
+    if (newPage && newPage !== page) {
+      console.log('  ⚠️  New tab detected, closing...');
+      await newPage.close();
+    }
+  });
+  
   await page.evaluateOnNewDocument(() => {
     Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
     Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
@@ -272,6 +348,13 @@ async function handleConsent(page) {
         if (!existing || buf.length > existing.buf.length) {
           capturedImages.set(id, { buf, url });
           console.log(`  captured (${capturedImages.size}) — ${(buf.length/1024).toFixed(1)} KB`);
+          
+          // Check if we have 5 photos > 50KB each
+          const goodPhotos = [...capturedImages.values()].filter(v => v.buf.length > 50000);
+          if (goodPhotos.length >= 5) {
+            enoughPhotos = true;
+            console.log('  ✅ Got 5 good photos, will stop after current batch');
+          }
         }
       } catch(e) {}
     }
@@ -281,7 +364,6 @@ async function handleConsent(page) {
   console.log(`\n🗺️  Opening Maps: ${mapsUrl}`);
   await page.goto(mapsUrl, { waitUntil: 'networkidle2', timeout: 90000 }).catch(() => {});
   
-  // Handle consent popup if appears
   await handleConsent(page);
   
   console.log('Page loaded, waiting...');
@@ -303,15 +385,12 @@ async function handleConsent(page) {
   console.log(`  Rating: ${meta.rating || 'N/A'}`);
   console.log(`  Reviews: ${meta.reviewCount || 'N/A'}`);
 
-  // 2. Photos - capture from main page without clicking photos tab (to avoid sign-in)
+  // 2. PHOTOS - Stay on main page, capture from photo strip
   console.log('\n📸 Capturing photos from main page...');
-  // The main page already loads some photos - scroll to trigger more
-  await page.evaluate(() => {
-    window.scrollBy(0, 500);
-  });
+  await page.evaluate(() => window.scrollBy(0, 500));
   await randomSleep(3000, 5000);
   
-  // Try to click on any visible photo thumbnails on main page
+  // Click first visible photo to open lightbox
   await page.evaluate(() => {
     const imgs = document.querySelectorAll('img[src*="googleusercontent"]');
     for (const img of imgs) {
@@ -324,27 +403,36 @@ async function handleConsent(page) {
   });
   await randomSleep(4000, 6000);
 
-  // Try to open lightbox from main page
+  // Open lightbox properly
   const lightboxResult = await openPhotoLightbox(page);
   console.log('  ' + lightboxResult);
-  await randomSleep(6000, 10000);
+  await randomSleep(5000, 8000);
 
   // Click thumbnails in strip
   const stripResult = await clickPhotoStripThumbnails(page);
   console.log('  ' + stripResult);
-  await randomSleep(6000, 10000);
-
-  console.log('  Navigating gallery...');
-  await navigateGallery(page, 60);
   await randomSleep(5000, 8000);
 
-  // 3. Reviews
-  console.log('\n⭐ Opening Reviews...');
-  const reviewResult = await clickReviewsTab(page);
-  console.log('  ' + reviewResult);
+  // Navigate gallery with arrow keys
+  console.log('  Navigating gallery...');
+  await navigateGallery(page, 50);
+  await randomSleep(3000, 5000);
+
+  // Close lightbox if open (press Escape)
+  await page.keyboard.press('Escape');
+  await randomSleep(1000, 2000);
+
+  // 3. REVIEWS - Click "More reviews" button on main page (not reviews tab)
+  console.log('\n⭐ Opening reviews via "More reviews" button...');
+  const moreReviewsResult = await clickMoreReviews(page);
+  console.log('  ' + moreReviewsResult);
   await randomSleep(4000, 7000);
 
-  await scrollReviews(page, 12);
+  // Wait for reviews to load
+  await page.waitForSelector('.jftiEf, [data-review-id], .review-item, [jsaction*="review"], div[role="feed"], .MyEned', { timeout: 15000 }).catch(() => {});
+  
+  console.log('  Scrolling reviews...');
+  await scrollReviewsList(page, 10);
 
   console.log('\n📝 Extracting reviews...');
   const reviews = await extractReviews(page);
@@ -352,6 +440,7 @@ async function handleConsent(page) {
   console.log(`  Found ${reviews.length} reviews, keeping ${metadata.reviews.length}`);
   metadata.reviews.forEach((r, i) => {
     console.log(`  [${i+1}] ${r.name} — ${r.stars}`);
+    console.log(`       "${r.text.substring(0, 100)}..."`);
   });
 
   // Save photos
@@ -389,7 +478,7 @@ async function handleConsent(page) {
 
   await saveMetadata();
 
-  console.log(`\n✅ Done. ${count} photos saved.`);
+  console.log(`\n✅ Done. ${count} photos saved, ${metadata.reviews.length} reviews extracted.`);
   console.log(`   Metadata: sites/${slug}/assets/metadata.json`);
   await browser.close();
 })();

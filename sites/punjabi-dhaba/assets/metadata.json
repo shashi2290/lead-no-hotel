@@ -1,0 +1,45 @@
+{
+  "placeId": "ChIJsffCA3S3KjoRzyYuShDrJq8",
+  "slug": "punjabi-dhaba",
+  "address": "NH 44, National Highway, Bandol, nagpur, Madhya Pradesh 480882",
+  "phone": "079994 51844",
+  "hours": "",
+  "website": "",
+  "rating": "4.6 stars ",
+  "reviewCount": "(559)",
+  "photos": [
+    "photo_1.jpg",
+    "photo_2.jpg",
+    "photo_3.jpg",
+    "photo_4.jpg",
+    "photo_5.jpg"
+  ],
+  "reviews": [
+    {
+      "name": "ATUL URKUDE",
+      "stars": "4 stars",
+      "text": "The food quality was very good. Tandoor roti was just awesome. Only thing is person taking order was not able to properly remember the orders given. And I think there should be more gents and ladies washroom with latrine made available."
+    },
+    {
+      "name": "Melody Zone",
+      "stars": "2 stars",
+      "text": "There is no Toilet. Only a bath cabin.Too difficult for ladies. No Wi-Fi , no wheel chair,\nAll are fake. When we ask for hot water the behaviour is rough. …"
+    },
+    {
+      "name": "md se",
+      "stars": "2 stars",
+      "text": "Visited due to its high rating on Google. The food was okay, but the staff attitude was disappointing."
+    },
+    {
+      "name": "Biswajeeta Dalabehera",
+      "stars": "5 stars",
+      "text": "Good food even at awkward time we got food. Jeera aloo was very good."
+    },
+    {
+      "name": "praful khobragade",
+      "stars": "1 star",
+      "text": "Poor Service,poor taste,poor dhaba styling.....With huge brand name of punjabi dhaba,,,not worth costly food....And fake photos of dishes on Google map....Menu card with no mention of rates, no reasonable dhaba thali system....."
+    }
+  ],
+  "scrapedAt": "2026-07-11T08:49:12.826Z"
+}

@@ -1,0 +1,45 @@
+{
+  "placeId": "ChIJaVepqhDTfzkRjEYlf1x9KVw",
+  "slug": "uma-adventure",
+  "address": "35, Block Colony Main Road, near Maharashtra Bank, Tamia, Madhya Pradesh 480559",
+  "phone": "099935 27951",
+  "hours": "",
+  "website": "",
+  "rating": "4.9 stars ",
+  "reviewCount": "(80)",
+  "photos": [
+    "photo_1.jpg",
+    "photo_2.jpg",
+    "photo_3.jpg",
+    "photo_4.jpg",
+    "photo_5.jpg"
+  ],
+  "reviews": [
+    {
+      "name": "Divyesh Saglani",
+      "stars": "5 stars",
+      "text": "What an amazing place, high plateau, where you can trek, the plateau would have be around 1000 feet deep, a nice place for adventurers, can't be completed in single day, so I would prefer one to go in weekends, with various other …"
+    },
+    {
+      "name": "Amit Ninawe",
+      "stars": "3 stars",
+      "text": "The view point was better previously when there was no fencing due to private entity. Now only a part of it can be accessed and main part is closed for tourists"
+    },
+    {
+      "name": "Rushikesh",
+      "stars": "5 stars",
+      "text": "Amazing place to visit. Must walk down the hill and climb again. Great experience."
+    },
+    {
+      "name": "Subhash kumre",
+      "stars": "5 stars",
+      "text": "♥️Very good place and great experience with natura. ♥️"
+    },
+    {
+      "name": "MANISHA RAJPUT",
+      "stars": "5 stars",
+      "text": "Most beautiful, natural and calming place"
+    }
+  ],
+  "scrapedAt": "2026-07-11T08:53:31.836Z"
+}

@@ -2,5 +2,5 @@
 
 - the leads are in https://docs.google.com/spreadsheets/d/1jcoOJfYsl38psqmg-2HBQkULXvsSBopLpLbWV7AUTp4/edit?gid=0#gid=0
 
-- build lead page for 13th row in this sheet i.e. Shubh Family Restaurant & Celebrationfor this run
+- build lead website for row 22 i.e. Abhinandan Garden to row 27 i.e Hotel grand palace 
 
