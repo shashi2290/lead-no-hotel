@@ -32,6 +32,18 @@ if (!VALID_TYPES.includes(type)) {
   process.exit(1);
 }
 
+// Validate slug to prevent path traversal and command injection
+if (!/^[a-z0-9-]+$/.test(slug)) {
+  console.error(`❌ Invalid slug: "${slug}". Use only lowercase letters, numbers, and hyphens.`);
+  process.exit(1);
+}
+
+// Validate placeId if provided
+if (placeId && !/^[a-zA-Z0-9_-]+$/.test(placeId)) {
+  console.error(`❌ Invalid place_id: "${placeId}". Use only alphanumeric characters, underscores, and hyphens.`);
+  process.exit(1);
+}
+
 const siteDir   = path.join(__dirname, '..', 'sites', slug);
 const tmplDir   = path.join(__dirname, '..', 'templates', type);
 
@@ -68,7 +80,7 @@ console.log(`   Type     : ${type}`);
 if (placeId) {
   console.log(`\n🗺  Scraping Maps photos (place_id: ${placeId})...`);
   try {
-    execSync(`node ${path.join(__dirname, 'scrape_maps.js')} ${placeId} ${slug}`, { stdio: 'inherit' });
+    execSync('node', [path.join(__dirname, 'scrape_maps.js'), placeId, slug], { stdio: 'inherit' });
   } catch(e) {
     console.log('⚠️  Maps scrape failed — add photos manually to sites/' + slug + '/assets/maps_photos/');
   }

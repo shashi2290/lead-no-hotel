@@ -21,6 +21,18 @@ if (!placeId || !slug) {
   process.exit(1);
 }
 
+// Validate slug to prevent path traversal
+if (!/^[a-z0-9-]+$/.test(slug)) {
+  console.error(`❌ Invalid slug: "${slug}". Use only lowercase letters, numbers, and hyphens.`);
+  process.exit(1);
+}
+
+// Validate placeId format
+if (!/^[a-zA-Z0-9_-]+$/.test(placeId)) {
+  console.error(`❌ Invalid place_id: "${placeId}". Unexpected characters.`);
+  process.exit(1);
+}
+
 const siteDir = path.join(__dirname, '..', 'sites', slug);
 const assetsDir = path.join(siteDir, 'assets', 'maps_photos');
 fs.mkdirSync(assetsDir, { recursive: true });
@@ -291,6 +303,12 @@ async function handleConsent(page) {
   const userDataDir = path.join(__dirname, '..', '.puppeteer_profile');
   fs.mkdirSync(userDataDir, { recursive: true });
 
+  // ⚠️  SECURITY NOTE: The flags below intentionally weaken browser security to
+  // bypass Google Maps anti-bot detection (--no-sandbox, --disable-web-security,
+  // --allow-running-insecure-content, --disable-features=IsolateOrigins).
+  // These are necessary for the scraper to function, but the browser should
+  // only navigate to trusted URLs (google.com/maps). Do not add generic
+  // web browsing to this script.
   const browser = await puppeteer.launch({
     headless: false,
     userDataDir,
@@ -341,6 +359,10 @@ async function handleConsent(page) {
     const url = resp.url();
     if (url.includes('googleusercontent.com/')) {
       try {
+        // Validate content-type is an image before capturing
+        const contentType = resp.headers()['content-type'] || '';
+        if (!contentType.startsWith('image/')) return;
+        
         const buf = await resp.buffer();
         if (buf.length < 3000) return;
         const id = url.split('/').pop().split('=')[0];

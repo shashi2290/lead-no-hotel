@@ -149,6 +149,19 @@ const sites = [
   }
 ];
 
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function escapeAttr(str) {
+  return escapeHtml(str).replace(/"/g, '&quot;');
+}
+
 function getStarsHtml(stars) {
   const num = parseInt(stars) || 5;
   return '★'.repeat(num) + '☆'.repeat(5 - num);
@@ -158,7 +171,7 @@ function buildReviewsHtml(reviews) {
   return reviews.map((r, i) => {
     const isFeatured = i === 2;
     const featuredClass = isFeatured ? ' review-card--featured' : '';
-    return `        <blockquote class="review-card reveal${featuredClass}"><div class="review-stars">${getStarsHtml(r.stars)}</div><p>"${r.text}"</p><footer>${r.name} <span>· Google Maps</span></footer></blockquote>`;
+    return `        <blockquote class="review-card reveal${featuredClass}"><div class="review-stars">${getStarsHtml(r.stars)}</div><p>"${escapeHtml(r.text)}"</p><footer>${escapeHtml(r.name)} <span>· Google Maps</span></footer></blockquote>`;
   }).join('\n');
 }
 
@@ -307,10 +320,10 @@ function updateSite(site) {
   
   // Update title and meta description
   const typeLabel = site.type === 'hotel' ? 'Hotel & Stay' : 'Restaurant';
-  html = html.replace(/<title>.*?<\/title>/, `<title>${site.name} | ${typeLabel}</title>`);
+  html = html.replace(/<title>.*?<\/title>/, `<title>${escapeHtml(site.name)} | ${typeLabel}</title>`);
   
   const descPrefix = site.type === 'hotel' ? 'Comfortable rooms, premium amenities, and excellent service for your stay.' : 'Authentic flavors, warm hospitality. Dine in or order online.';
-  html = html.replace(/<meta name="description" content=".*?">/, `<meta name="description" content="${site.name} — ${descPrefix}">`);
+  html = html.replace(/<meta name="description" content=".*?">/, `<meta name="description" content="${escapeAttr(site.name)} — ${descPrefix}">`);
   
   // Update nav phone
   html = html.replace(/href="tel:\+91XXXXXXXXXX"/, `href="tel:${site.phoneClean.replace(/\s/g, '')}"`);
@@ -318,16 +331,16 @@ function updateSite(site) {
   html = html.replace(/>Book a Room</, `>${site.type === 'hotel' ? 'Book a Room' : 'Reserve a Table'}</`);
   
   // Update hero section
-  html = html.replace(/<p class="hero-eyebrow">.*?<\/p>/, `<p class="hero-eyebrow">${site.city} · ${site.cuisine}</p>`);
+  html = html.replace(/<p class="hero-eyebrow">.*?<\/p>/, `<p class="hero-eyebrow">${escapeHtml(site.city)} · ${escapeHtml(site.cuisine)}</p>`);
   
   if (site.type === 'restaurant') {
     html = html.replace(/<h1 class="hero-headline">.*?<\/h1>/, `<h1 class="hero-headline">Authentic<br>Flavours,<br><em>Every Visit.</em></h1>`);
-    html = html.replace(/<p class="hero-sub">.*?<\/p>/, `<p class="hero-sub">${site.cuisine} · Dine-in · Takeaway<br>${site.shortName} — Open daily ${site.hours.split('–')[0].trim()}</p>`);
+    html = html.replace(/<p class="hero-sub">.*?<\/p>/, `<p class="hero-sub">${escapeHtml(site.cuisine)} · Dine-in · Takeaway<br>${escapeHtml(site.shortName)} — Open daily ${escapeHtml(site.hours.split('–')[0].trim())}</p>`);
     html = html.replace(/<a href="#contact" class="btn-primary">.*?<\/a>/, `<a href="#contact" class="btn-primary">${site.type === 'hotel' ? 'Book a Room' : 'Reserve a Table'}</a>`);
     html = html.replace(/<a href="#menu" class="btn-ghost">.*?<\/a>/, `<a href="#${site.type === 'hotel' ? 'rooms' : 'menu'}" class="btn-ghost">${site.type === 'hotel' ? 'View Amenities' : 'View Menu'}</a>`);
   } else {
     html = html.replace(/<h1 class="hero-headline">.*?<\/h1>/, `<h1 class="hero-headline">Rest,<br>Relax,<br><em>Recharge.</em></h1>`);
-    html = html.replace(/<p class="hero-sub">.*?<\/p>/, `<p class="hero-sub">Premium rooms · 24/7 Service · Central Location<br>${site.shortName} — Check-in 12 PM</p>`);
+    html = html.replace(/<p class="hero-sub">.*?<\/p>/, `<p class="hero-sub">Premium rooms · 24/7 Service · Central Location<br>${escapeHtml(site.shortName)} — Check-in 12 PM</p>`);
     html = html.replace(/<a href="#contact" class="btn-primary">.*?<\/a>/, `<a href="#contact" class="btn-primary">Book a Room</a>`);
     html = html.replace(/<a href="#rooms" class="btn-ghost">.*?<\/a>/, `<a href="#rooms" class="btn-ghost">View Amenities</a>`);
   }
@@ -342,11 +355,11 @@ function updateSite(site) {
   }
   
   // Update hero photo badge address
-  html = html.replace(/<span class="badge-addr">Address here<\/span>/, `<span class="badge-addr">${site.address}</span>`);
+  html = html.replace(/<span class="badge-addr">Address here<\/span>/, `<span class="badge-addr">${escapeHtml(site.address)}</span>`);
   
   // Update location strip
-  html = html.replace(/<span class="location-label">📍 \{\{ADDRESS\}\}<\/span>/, `<span class="location-label">📍 ${site.address}</span>`);
-  html = html.replace(/<span class="location-desc">\{\{ADDRESS_DESC\}\}<\/span>/, `<span class="location-desc">${site.locationDesc}</span>`);
+  html = html.replace(/<span class="location-label">📍 \{\{ADDRESS\}\}<\/span>/, `<span class="location-label">📍 ${escapeHtml(site.address)}</span>`);
+  html = html.replace(/<span class="location-desc">\{\{ADDRESS_DESC\}\}<\/span>/, `<span class="location-desc">${escapeHtml(site.locationDesc)}</span>`);
   // Update location strip background image to use first photo
   html = html.replace(/background-image: url\('assets\/bg-abstract\.jpg'\)/, `background-image: url('assets/maps_photos/photo_1.jpg')`);
   
@@ -393,11 +406,11 @@ ${buildReviewsHtml(site.reviews)}
   
   // Update contact section - address, phone, hours
   html = html.replace(/<div class="ci-item"><span class="ci-icon">📍<\/span><div><strong>Address<\/strong><p>.*?<\/p><\/div><\/div>/, 
-    `<div class="ci-item"><span class="ci-icon">📍</span><div><strong>Address</strong><p>${site.address.replace(/,/g, '<br>')}</p></div></div>`);
+    `<div class="ci-item"><span class="ci-icon">📍</span><div><strong>Address</strong><p>${escapeHtml(site.address).replace(/,/g, '<br>')}</p></div></div>`);
   html = html.replace(/<div class="ci-item"><span class="ci-icon">📞<\/span><div><strong>Phone<\/strong><p><a href="tel:\+91XXXXXXXXXX">XXX-XXX-XXXX<\/a><\/p><\/div><\/div>/, 
-    `<div class="ci-item"><span class="ci-icon">📞</span><div><strong>Phone</strong><p><a href="tel:${site.phoneClean.replace(/\s/g, '')}">${site.phoneClean}</a></p></div></div>`);
+    `<div class="ci-item"><span class="ci-icon">📞</span><div><strong>Phone</strong><p><a href="tel:${site.phoneClean.replace(/\s/g, '')}">${escapeHtml(site.phoneClean)}</a></p></div></div>`);
   html = html.replace(/<div class="ci-item"><span class="ci-icon">🕐<\/span><div><strong>Hours<\/strong><p>.*?<\/p><\/div><\/div>/, 
-    `<div class="ci-item"><span class="ci-icon">🕐</span><div><strong>Hours</strong><p>${site.hours}</p></div></div>`);
+    `<div class="ci-item"><span class="ci-icon">🕐</span><div><strong>Hours</strong><p>${escapeHtml(site.hours)}</p></div></div>`);
   
   // Update contact form heading
   html = html.replace(/<h3>Reserve a Table<\/h3>/, `<h3>${site.type === 'hotel' ? 'Book Your Stay' : 'Reserve a Table'}</h3>`);
@@ -405,15 +418,15 @@ ${buildReviewsHtml(site.reviews)}
     `<button type="submit" class="btn-primary" style="width:100%;justify-content:center;">${site.type === 'hotel' ? 'Request Booking' : 'Confirm Reservation'}</button>`);
   
   // Update map strip
-  html = html.replace(/<span class="map-label-name">\{\{BUSINESS_ADDRESS\}\}<\/span>/, `<span class="map-label-name">${site.address}</span>`);
-  html = html.replace(/<a href="\{\{MAPS_LINK\}\}" target="_blank" rel="noopener" class="map-open-btn">Open in Maps ↗<\/a>/, `<a href="${site.mapsLink}" target="_blank" rel="noopener" class="map-open-btn">Open in Maps ↗</a>`);
-  html = html.replace(/src="\{\{MAPS_EMBED_URL\}\}"/, `src="${site.mapsEmbed}"`);
-  html = html.replace(/title=".*? Location"/, `title="${site.name} Location"`);
+  html = html.replace(/<span class="map-label-name">\{\{BUSINESS_ADDRESS\}\}<\/span>/, `<span class="map-label-name">${escapeHtml(site.address)}</span>`);
+  html = html.replace(/<a href="\{\{MAPS_LINK\}\}" target="_blank" rel="noopener" class="map-open-btn">Open in Maps ↗<\/a>/, `<a href="${escapeAttr(site.mapsLink)}" target="_blank" rel="noopener" class="map-open-btn">Open in Maps ↗</a>`);
+  html = html.replace(/src="\{\{MAPS_EMBED_URL\}\}"/, `src="${escapeAttr(site.mapsEmbed)}"`);
+  html = html.replace(/title=".*? Location"/, `title="${escapeAttr(site.name)} Location"`);
   
   // Update footer
-  html = html.replace(/<div class="footer-brand">.*?<\/div>/, `<div class="footer-brand">${site.name}</div>`);
-  html = html.replace(/<p class="footer-addr">\{\{BUSINESS_ADDRESS\}\}<\/p>/, `<p class="footer-addr">${site.address}</p>`);
-  html = html.replace(/<p class="footer-copy">© 2026 \{\{BUSINESS_NAME\}\} · All rights reserved<\/p>/, `<p class="footer-copy">© 2026 ${site.name} · All rights reserved</p>`);
+  html = html.replace(/<div class="footer-brand">.*?<\/div>/, `<div class="footer-brand">${escapeHtml(site.name)}</div>`);
+  html = html.replace(/<p class="footer-addr">\{\{BUSINESS_ADDRESS\}\}<\/p>/, `<p class="footer-addr">${escapeHtml(site.address)}</p>`);
+  html = html.replace(/<p class="footer-copy">© 2026 \{\{BUSINESS_NAME\}\} · All rights reserved<\/p>/, `<p class="footer-copy">© 2026 ${escapeHtml(site.name)} · All rights reserved</p>`);
   
   // Update modal text
   html = html.replace(/<h3>Reservation Confirmed!<\/h3>/, `<h3>${site.type === 'hotel' ? 'Booking Request Sent!' : 'Reservation Confirmed!'}</h3>`);
