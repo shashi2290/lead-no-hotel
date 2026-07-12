@@ -364,15 +364,16 @@ async function handleConsent(page) {
         if (!contentType.startsWith('image/')) return;
         
         const buf = await resp.buffer();
-        if (buf.length < 3000) return;
+        // Discard very small responses (likely icons/thumbnails, not real photos)
+        if (buf.length < 5000) return;
         const id = url.split('/').pop().split('=')[0];
         const existing = capturedImages.get(id);
         if (!existing || buf.length > existing.buf.length) {
           capturedImages.set(id, { buf, url });
           console.log(`  captured (${capturedImages.size}) — ${(buf.length/1024).toFixed(1)} KB`);
           
-          // Check if we have 5 photos > 50KB each
-          const goodPhotos = [...capturedImages.values()].filter(v => v.buf.length > 50000);
+          // Check if we have 5 photos > 40KB each
+          const goodPhotos = [...capturedImages.values()].filter(v => v.buf.length > 40000);
           if (goodPhotos.length >= 5) {
             enoughPhotos = true;
             console.log('  ✅ Got 5 good photos, will stop after current batch');

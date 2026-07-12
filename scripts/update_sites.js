@@ -159,7 +159,8 @@ function escapeHtml(str) {
 }
 
 function escapeAttr(str) {
-  return escapeHtml(str).replace(/"/g, '&quot;');
+  // escapeHtml already escapes double-quotes; this is an intent-signalling alias
+  return escapeHtml(str);
 }
 
 function getStarsHtml(stars) {
@@ -326,7 +327,7 @@ function updateSite(site) {
   html = html.replace(/<meta name="description" content=".*?">/, `<meta name="description" content="${escapeAttr(site.name)} — ${descPrefix}">`);
   
   // Update nav phone
-  html = html.replace(/href="tel:\+91XXXXXXXXXX"/, `href="tel:${site.phoneClean.replace(/\s/g, '')}"`);
+  html = html.replace(/href="tel:\+91XXXXXXXXXX"/, () => `href="tel:${escapeAttr(site.phoneClean.replace(/\s/g, ''))}"`);
   html = html.replace(/>Reserve a Table</, `>${site.type === 'hotel' ? 'Book a Room' : 'Reserve a Table'}</`);
   html = html.replace(/>Book a Room</, `>${site.type === 'hotel' ? 'Book a Room' : 'Reserve a Table'}</`);
   
@@ -346,8 +347,8 @@ function updateSite(site) {
   }
   
   // Update hero stats
-  html = html.replace(/<span class="stat-num">4\.X<span class="star">★<\/span><\/span>/, `<span class="stat-num">${site.rating}<span class="star">★</span></span>`);
-  html = html.replace(/<span class="stat-num">XXX\+<\/span><span class="stat-label">Happy Diners<\/span>/, `<span class="stat-num">${site.reviewCount.replace('(', '').replace(')', '')}+</span><span class="stat-label">Happy ${site.type === 'hotel' ? 'Guests' : 'Diners'}</span>`);
+  html = html.replace(/<span class="stat-num">4\.X<span class="star">★<\/span><\/span>/, () => `<span class="stat-num">${escapeHtml(site.rating)}<span class="star">★</span></span>`);
+  html = html.replace(/<span class="stat-num">XXX\+<\/span><span class="stat-label">Happy Diners<\/span>/, () => `<span class="stat-num">${escapeHtml(site.reviewCount.replace('(', '').replace(')', ''))}+</span><span class="stat-label">Happy ${site.type === 'hotel' ? 'Guests' : 'Diners'}</span>`);
   if (site.type === 'hotel') {
     html = html.replace(/<span class="stat-num">24\/7<\/span><span class="stat-label">Room Service<\/span>/, `<span class="stat-num">24/7</span><span class="stat-label">Front Desk</span>`);
   } else {
@@ -393,8 +394,8 @@ ${buildHotelRoomsHtml(site)}
   }
   
   // Update gallery section - update rating tile
-  html = html.replace(/<div class="rating-big">4\.X<\/div>/, `<div class="rating-big">${site.rating}</div>`);
-  html = html.replace(/<div class="rating-count">XXX reviews on Google<\/div>/, `<div class="rating-count">${site.reviewCount} reviews on Google</div>`);
+  html = html.replace(/<div class="rating-big">4\.X<\/div>/, () => `<div class="rating-big">${escapeHtml(site.rating)}</div>`);
+  html = html.replace(/<div class="rating-count">XXX reviews on Google<\/div>/, () => `<div class="rating-count">${escapeHtml(site.reviewCount)} reviews on Google</div>`);
   
   // Update reviews section
   html = html.replace(/<div class="reviews-grid">[\s\S]*?<\/div>\s*<\/div>\s*<\/section>/, 
@@ -408,7 +409,7 @@ ${buildReviewsHtml(site.reviews)}
   html = html.replace(/<div class="ci-item"><span class="ci-icon">📍<\/span><div><strong>Address<\/strong><p>.*?<\/p><\/div><\/div>/, 
     `<div class="ci-item"><span class="ci-icon">📍</span><div><strong>Address</strong><p>${escapeHtml(site.address).replace(/,/g, '<br>')}</p></div></div>`);
   html = html.replace(/<div class="ci-item"><span class="ci-icon">📞<\/span><div><strong>Phone<\/strong><p><a href="tel:\+91XXXXXXXXXX">XXX-XXX-XXXX<\/a><\/p><\/div><\/div>/, 
-    `<div class="ci-item"><span class="ci-icon">📞</span><div><strong>Phone</strong><p><a href="tel:${site.phoneClean.replace(/\s/g, '')}">${escapeHtml(site.phoneClean)}</a></p></div></div>`);
+    () => `<div class="ci-item"><span class="ci-icon">📞</span><div><strong>Phone</strong><p><a href="tel:${escapeAttr(site.phoneClean.replace(/\s/g, ''))}">${escapeHtml(site.phoneClean)}</a></p></div></div>`);
   html = html.replace(/<div class="ci-item"><span class="ci-icon">🕐<\/span><div><strong>Hours<\/strong><p>.*?<\/p><\/div><\/div>/, 
     `<div class="ci-item"><span class="ci-icon">🕐</span><div><strong>Hours</strong><p>${escapeHtml(site.hours)}</p></div></div>`);
   
