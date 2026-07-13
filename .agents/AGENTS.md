@@ -76,10 +76,28 @@ Google Maps aggressively blocks automated headless scraping. To bypass this on m
 4. Set a standard, modern `User-Agent`.
 5. **Method:** Intercept network responses. Listen for all URLs containing `googleusercontent.com/`.
 6. **URL format:** Use `https://www.google.com/maps/place/?q=place_id:{placeId}` instead of the older `/search/?api=1&query_place_id=` format (the old format often doesn't load photos).
-7. **Click strategy:** First click the "Photos" tab button (`button[aria-label*="photos"]`), then click a photo thumbnail to open the lightbox viewer — this triggers full-resolution image loading. Arrow-key navigation through the gallery captures the high-res versions.
-8. **Filtering:** After capture, filter by buffer size > 40,000 bytes to keep only higher-quality images. Discard anything under 5,000 bytes.
+7. **Photo capture flow:**
+   a. Click the "Photos" tab button (`button[aria-label*="Photo" i]`).
+   b. Click a photo thumbnail to open the lightbox viewer.
+   c. **Clear `capturedImages` map** before lightbox navigation to discard profile pics and thumbnails from the main page.
+   d. Arrow-key navigate through the gallery — the response handler captures only high-res gallery images.
+   e. Close lightbox with `Escape`.
+8. **Filtering:** After capture, filter by buffer size > 50,000 bytes (50KB) to keep only real gallery images. Sort by size descending, take top 5. Fallback to >15KB if fewer than 5 found.
 9. **Storage:** Save them incrementally (e.g., `photo_1.jpg`, `photo_2.jpg`) into the lead's `assets/maps_photos/` directory.
 10. **Troubleshooting:** If 0 photos are captured, try adding `--disable-web-security` and `--allow-running-insecure-content` flags to Puppeteer launch args.
+
+### Extracting Real Reviews
+To populate the `reviews-section` dynamically across any template:
+1. **After closing the lightbox, scroll to top** (`window.scrollTo(0, 0)`) so the left panel with ratings/reviews is visible.
+2. **Click the reviews trigger** — try these strategies in order:
+   a. `span[aria-label*="reviews"]` or `button[aria-label*="reviews"]` (the rating/review count element)
+   b. `button[jsaction*="pane.rating.moreReviews"]` or `button[aria-label*="More reviews" i]`
+   c. Any clickable element whose text matches "X reviews" pattern
+   d. Any element with `aria-label` containing "star" or "review"
+3. **Scroll the reviews list** to load more reviews (iterate `div[role="feed"]` or `.m6QErb` containers).
+4. **Extract** from `.jftiEf`, `[data-review-id]`, `.MyEned` or similar review containers.
+5. Inject these manually into the `blockquote` structures in the respective template's HTML.
+6. If Maps is inaccessible, search travel blogs and third-party review sites for real guest quotes as a fallback. Note the source context (e.g., blog post, trip report).
 
 ### Free Stock / AI Background Images
 - When no `generate_image` tool is available, use free-to-use stock photos from Unsplash for abstract backgrounds, textures, or generic domain-specific mood accents (e.g., highway night scenes, hotel corridors, warm bokeh).
@@ -87,14 +105,6 @@ Google Maps aggressively blocks automated headless scraping. To bypass this on m
 - Blend background images into CSS via `::before` pseudo-elements with low `opacity` (3–12%) behind content sections. Use `isolation: isolate` on the parent to keep them behind content.
 - Unsplash images are free for commercial use (no attribution required under the Unsplash License).
 - Download via: `curl -L -o assets/bg-{name}.jpg "https://unsplash.com/photos/{id}/download?force=true&w=1920"`
-
-### Extracting Real Reviews
-To populate the `reviews-section` dynamically across any template:
-- Navigate to the Google Maps URL and click the "Reviews" tab button (`button[aria-label*="Reviews"]` or similar).
-- Extract the text from the review containers (e.g., `.jftiEf` or equivalent classes).
-- Grab the `Author Name`, `Star Rating`, and `Review Text`.
-- Inject these manually or programmatically into the `blockquote` structures in the respective template's HTML.
-- If Maps is inaccessible, search travel blogs and third-party review sites for real guest quotes as a fallback. Note the source context (e.g., blog post, trip report).
 
 ## 4. Workflow for a New Lead
 

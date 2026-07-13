@@ -177,24 +177,42 @@ async function navigateGallery(page, maxSteps = 60) {
 
 async function clickMoreReviews(page) {
   return page.evaluate(() => {
-    // Find "More reviews" or "All reviews" button on main page
-    const selectors = [
+    // Strategy 1: Click a rating/review trigger that opens the reviews panel
+    const ratingTriggers = [
+      'button[aria-label*="star"][aria-label*="reviews"]',
+      'button[aria-label$="reviews"]',
+      'span[aria-label*="reviews"]',
+      'button[jsaction*="pane.rating"]',
+      'div[jsaction*="pane.rating"]',
+      'div[role="button"][aria-label*="star"]',
+    ];
+
+    for (const sel of ratingTriggers) {
+      try {
+        const els = document.querySelectorAll(sel);
+        for (const el of els) {
+          if (el.offsetParent !== null && el.offsetHeight > 0) {
+            el.click();
+            return `clicked rating trigger via ${sel}`;
+          }
+        }
+      } catch (e) {}
+    }
+
+    // Strategy 2: Find a "More reviews" or "All reviews" button
+    const moreReviewSelectors = [
       'button[jsaction*="pane.rating.moreReviews"]',
       'button[jsaction*="review.more"]',
       'button[aria-label*="More reviews" i]',
       'button[aria-label*="All reviews" i]',
       'a[href*="review"]',
-      'button:has-text("More reviews")',
-      'button:has-text("All reviews")',
-      'span:has-text("More reviews")',
-      'span:has-text("All reviews")',
     ];
 
-    for (const sel of selectors) {
+    for (const sel of moreReviewSelectors) {
       try {
         const els = document.querySelectorAll(sel);
         for (const el of els) {
-          if (el.offsetParent !== null) {
+          if (el.offsetParent !== null && el.offsetHeight > 0) {
             el.click();
             return `clicked more reviews via ${sel}`;
           }
@@ -202,7 +220,7 @@ async function clickMoreReviews(page) {
       } catch (e) {}
     }
 
-    // Fallback: search for any clickable element with "review" text
+    // Fallback text search for any clickable containing "more review" or "all review"
     const clickables = document.querySelectorAll(
       'button, a, span[role="button"], div[role="button"]',
     );
@@ -216,6 +234,16 @@ async function clickMoreReviews(page) {
       ) {
         el.click();
         return "clicked more reviews via text search";
+      }
+    }
+
+    // Strategy 3: Try clicking any element with a rating/review aria-label
+    const allWithLabel = document.querySelectorAll('[aria-label*="star" i], [aria-label*="review" i]');
+    for (const el of allWithLabel) {
+      if (el.offsetParent !== null && el.offsetHeight > 0) {
+        el.click();
+        const label = (el.getAttribute("aria-label") || "").substring(0, 50);
+        return `clicked aria-label element: "${label}"`;
       }
     }
 
@@ -458,44 +486,75 @@ async function handleConsent(page) {
   console.log(`  Rating: ${meta.rating || "N/A"}`);
   console.log(`  Reviews: ${meta.reviewCount || "N/A"}`);
 
-  // 2. PHOTOS - Stay on main page, capture from photo strip
-  console.log("\n📸 Capturing photos from main page...");
-  await page.evaluate(() => window.scrollBy(0, 500));
-  await randomSleep(3000, 5000);
+  // 2. PHOTOS - Open the lightbox and capture only gallery images via response handler
+  console.log("\n📸 Capturing photos from gallery...");
 
-  // Click first visible photo to open lightbox
+  // Clear any previously captured images (profile pics, etc.)
+  capturedImages.clear();
+  enoughPhotos = false;
+
+  // Click on the "Photos" tab to open the photo gallery
   await page.evaluate(() => {
-    const imgs = document.querySelectorAll('img[src*="googleusercontent"]');
-    for (const img of imgs) {
-      if (img.offsetWidth > 100 && img.offsetHeight > 100) {
-        img.click();
-        return "clicked visible photo";
+    const photoTabs = document.querySelectorAll(
+      'button[aria-label*="Photo" i], button[jsaction*="photo" i], div[role="tab"][aria-label*="Photo" i]'
+    );
+    for (const tab of photoTabs) {
+      if (tab.offsetParent !== null) {
+        tab.click();
+        return "clicked Photos tab";
       }
     }
-    return "no visible photos to click";
+    // Fallback: look for any element with "Photos" text
+    const allEls = document.querySelectorAll('button, a, div[role="tab"]');
+    for (const el of allEls) {
+      if (el.textContent.trim() === "Photos" && el.offsetParent !== null) {
+        el.click();
+        return "clicked Photos tab via text";
+      }
+    }
+    return "no Photos tab found";
   });
-  await randomSleep(4000, 6000);
-
-  // Open lightbox properly
-  const lightboxResult = await openPhotoLightbox(page);
-  console.log("  " + lightboxResult);
   await randomSleep(5000, 8000);
 
-  // Click thumbnails in strip
-  const stripResult = await clickPhotoStripThumbnails(page);
-  console.log("  " + stripResult);
+  // Click the first photo in the grid to open the lightbox
+  await page.evaluate(() => {
+    // In the photos grid, find clickable photo elements
+    const photoItems = document.querySelectorAll(
+      'a[href*="photoid"], button[aria-label*="Photo"], div[role="button"][aria-label*="Photo"]'
+    );
+    for (const item of photoItems) {
+      if (item.offsetParent !== null) {
+        item.click();
+        return "clicked photo grid item";
+      }
+    }
+    // Fallback: click any large googleusercontent image
+    const imgs = document.querySelectorAll('img[src*="googleusercontent"]');
+    for (const img of imgs) {
+      if (img.offsetWidth > 150 && img.offsetHeight > 150) {
+        img.click();
+        return "clicked large photo";
+      }
+    }
+    return "no photos to click";
+  });
   await randomSleep(5000, 8000);
 
-  // Navigate gallery with arrow keys
+  // Navigate through gallery using arrow keys to trigger image loads
   console.log("  Navigating gallery...");
-  await navigateGallery(page, 50);
-  await randomSleep(3000, 5000);
+  for (let i = 0; i < 40; i++) {
+    if (enoughPhotos) break;
+    await page.keyboard.press("ArrowRight");
+    await randomSleep(800, 1500);
+  }
 
-  // Close lightbox if open (press Escape)
+  // Close lightbox and scroll back to top where reviews are visible
   await page.keyboard.press("Escape");
-  await randomSleep(1000, 2000);
+  await randomSleep(1500, 2500);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await randomSleep(2000, 3000);
 
-  // 3. REVIEWS - Click "More reviews" button on main page (not reviews tab)
+  // 3. REVIEWS - Click "More reviews" button on main page
   console.log('\n⭐ Opening reviews via "More reviews" button...');
   const moreReviewsResult = await clickMoreReviews(page);
   console.log("  " + moreReviewsResult);
@@ -523,14 +582,16 @@ async function handleConsent(page) {
     console.log(`       "${r.text.substring(0, 100)}..."`);
   });
 
-  // Save photos
+  // Save photos (from captured responses during lightbox navigation)
   console.log("\n💾 Saving photos...");
+
+  // Sort by size descending, take top 5 that are >50KB (likely real gallery images)
   const sorted = [...capturedImages.entries()]
-    .filter(([, { buf }]) => buf.length > 15000)
+    .filter(([, { buf }]) => buf.length > 50000)
     .sort((a, b) => b[1].buf.length - a[1].buf.length);
 
   console.log(
-    `  Found ${sorted.length} images >15KB out of ${capturedImages.size} total captures`,
+    `  Found ${sorted.length} images >50KB out of ${capturedImages.size} total captures`,
   );
 
   let count = 0;
@@ -546,10 +607,10 @@ async function handleConsent(page) {
   }
 
   if (count < 5) {
-    console.log(`  Only got ${count}, saving largest from all captures...`);
-    const allSorted = [...capturedImages.entries()].sort(
-      (a, b) => b[1].buf.length - a[1].buf.length,
-    );
+    console.log(`  Only got ${count} gallery images, falling back to all captures...`);
+    const allSorted = [...capturedImages.entries()]
+      .filter(([, { buf }]) => buf.length > 15000)
+      .sort((a, b) => b[1].buf.length - a[1].buf.length);
     for (const [, { buf }] of allSorted) {
       if (metadata.photos.includes(`photo_${count + 1}.jpg`)) continue;
       count++;
