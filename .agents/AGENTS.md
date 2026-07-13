@@ -6,7 +6,7 @@ This project is dedicated to building and deploying pitch websites for businesse
 The repository is modularized to handle multiple leads:
 - `sites/` — Contains individual deployed pitch sites for each lead. Each site is a static HTML/CSS/JS bundle in a folder named after the lead's slug (e.g. `sites/mehta-mri/`).
 - `templates/` — Contains base scaffolding templates by business type (e.g. `diagnostic`, `restaurant`, `coaching`).
-- `scripts/` — Contains Node.js utilities for scaffolding sites (`new_site.js`) and fetching assets (`scrape_maps.js`).
+- `scripts/` — Contains Node.js utilities for scaffolding sites (`new_site.js`) and fetching assets (`scrape_maps.js`). This should not be changed.
 
 ## 2. Design & Aesthetics Guidelines
 
